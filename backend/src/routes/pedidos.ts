@@ -42,10 +42,10 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ erro: 'Um ou mais itens do cardápio são inválidos ou estão inativos' });
   }
 
-  // Verifica disponibilidade de estoque
+  // Verifica disponibilidade de estoque (itens sem controle de estoque nunca bloqueiam)
   for (const pedidoItem of itens) {
     const itemCardapio = itensCardapio.find((i) => i.id === pedidoItem.itemCardapioId)!;
-    if (pedidoItem.quantidade > itemCardapio.qtdDisponivel) {
+    if (itemCardapio.controlaEstoque && pedidoItem.quantidade > itemCardapio.qtdDisponivel) {
       return res.status(400).json({
         erro: `Quantidade indisponível para "${itemCardapio.sabor}". Disponível: ${itemCardapio.qtdDisponivel}`,
       });
@@ -81,8 +81,10 @@ router.post('/', async (req, res) => {
       include: { itens: { include: { itemCardapio: true } }, cliente: true },
     });
 
-    // Abate o estoque disponível
+    // Abate o estoque disponível (itens sem controle de estoque não são abatidos)
     for (const pedidoItem of itens) {
+      const itemCardapio = itensCardapio.find((i) => i.id === pedidoItem.itemCardapioId)!;
+      if (!itemCardapio.controlaEstoque) continue;
       await tx.itemCardapio.update({
         where: { id: pedidoItem.itemCardapioId },
         data: { qtdDisponivel: { decrement: pedidoItem.quantidade } },
@@ -193,7 +195,7 @@ router.patch('/:id/pagamento', requireAdmin, async (req, res) => {
 
   const pedidoAtual = await prisma.pedido.findUnique({
     where: { id: req.params.id },
-    include: { itens: true },
+    include: { itens: { include: { itemCardapio: true } } },
   });
   if (!pedidoAtual) {
     return res.status(404).json({ erro: 'Pedido não encontrado' });
@@ -206,8 +208,10 @@ router.patch('/:id/pagamento', requireAdmin, async (req, res) => {
   const pedido = await prisma.$transaction(async (tx) => {
     // Cancelar um pedido devolve o estoque reservado na criação; reativar
     // um pedido cancelado (voltar pra PENDENTE/PAGO) reserva o estoque de novo.
+    // Itens sem controle de estoque (controlaEstoque=false) nunca são tocados.
     if (vaiCancelar && !eraCancelado) {
       for (const item of pedidoAtual.itens) {
+        if (!item.itemCardapio.controlaEstoque) continue;
         await tx.itemCardapio.update({
           where: { id: item.itemCardapioId },
           data: { qtdDisponivel: { increment: item.quantidade } },
@@ -215,6 +219,7 @@ router.patch('/:id/pagamento', requireAdmin, async (req, res) => {
       }
     } else if (!vaiCancelar && eraCancelado) {
       for (const item of pedidoAtual.itens) {
+        if (!item.itemCardapio.controlaEstoque) continue;
         await tx.itemCardapio.update({
           where: { id: item.itemCardapioId },
           data: { qtdDisponivel: { decrement: item.quantidade } },

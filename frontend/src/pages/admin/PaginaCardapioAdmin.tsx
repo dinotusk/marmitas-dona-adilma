@@ -11,10 +11,11 @@ interface NovoItem {
   descricao: string;
   preco: string;
   qtdDisponivel: string;
+  controlaEstoque: boolean;
 }
 
 function novoItemVazio(): NovoItem {
-  return { sabor: '', descricao: '', preco: '', qtdDisponivel: '' };
+  return { sabor: '', descricao: '', preco: '', qtdDisponivel: '', controlaEstoque: true };
 }
 
 function formatarData(iso: string) {
@@ -31,6 +32,7 @@ function ItemCardapioRow({
   const [descricao, setDescricao] = useState(item.descricao ?? '');
   const [preco, setPreco] = useState(item.preco);
   const [qtdDisponivel, setQtdDisponivel] = useState(String(item.qtdDisponivel));
+  const [controlaEstoque, setControlaEstoque] = useState(item.controlaEstoque);
   const [ativo, setAtivo] = useState(item.ativo);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -45,6 +47,7 @@ function ItemCardapioRow({
           descricao: descricao.trim() || undefined,
           preco: Number(preco),
           qtdDisponivel: Number(qtdDisponivel),
+          controlaEstoque,
           ativo,
         },
         true
@@ -82,9 +85,20 @@ function ItemCardapioRow({
           min="0"
           value={qtdDisponivel}
           onChange={(e) => setQtdDisponivel(e.target.value)}
+          disabled={!controlaEstoque}
+          title={controlaEstoque ? undefined : 'Estoque não controlado — sempre disponível'}
           className="w-20 px-2 py-1.5 rounded border border-line bg-cream-card text-ink text-sm
-            focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+            focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb
+            disabled:opacity-40 disabled:cursor-not-allowed"
         />
+        <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+          <input
+            type="checkbox"
+            checked={controlaEstoque}
+            onChange={(e) => setControlaEstoque(e.target.checked)}
+          />
+          Controlar estoque
+        </label>
         <label className="flex items-center gap-1.5 text-sm text-ink-soft">
           <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
           Ativo
@@ -137,8 +151,12 @@ export function PaginaCardapioAdmin() {
     );
   }
 
-  function atualizarCampoNovoItem(index: number, campo: keyof NovoItem, valor: string) {
+  function atualizarCampoNovoItem(index: number, campo: keyof Omit<NovoItem, 'controlaEstoque'>, valor: string) {
     setNovosItens((atual) => atual.map((item, i) => (i === index ? { ...item, [campo]: valor } : item)));
+  }
+
+  function atualizarControlaEstoqueNovoItem(index: number, valor: boolean) {
+    setNovosItens((atual) => atual.map((item, i) => (i === index ? { ...item, controlaEstoque: valor } : item)));
   }
 
   async function handleCriarCardapio(e: FormEvent) {
@@ -156,6 +174,7 @@ export function PaginaCardapioAdmin() {
             descricao: i.descricao.trim() || undefined,
             preco: Number(i.preco),
             qtdDisponivel: Number(i.qtdDisponivel),
+            controlaEstoque: i.controlaEstoque,
           })),
         },
         true
@@ -185,6 +204,7 @@ export function PaginaCardapioAdmin() {
           descricao: novoSabor.descricao.trim() || undefined,
           preco: Number(novoSabor.preco),
           qtdDisponivel: Number(novoSabor.qtdDisponivel),
+          controlaEstoque: novoSabor.controlaEstoque,
         },
         true
       );
@@ -320,10 +340,20 @@ export function PaginaCardapioAdmin() {
                       value={novoSabor.qtdDisponivel}
                       onChange={(e) => setNovoSabor((atual) => ({ ...atual, qtdDisponivel: e.target.value }))}
                       placeholder="Estoque"
-                      required
+                      required={novoSabor.controlaEstoque}
+                      disabled={!novoSabor.controlaEstoque}
                       className="w-20 px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
-                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb
+                        disabled:opacity-40 disabled:cursor-not-allowed"
                     />
+                    <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                      <input
+                        type="checkbox"
+                        checked={novoSabor.controlaEstoque}
+                        onChange={(e) => setNovoSabor((atual) => ({ ...atual, controlaEstoque: e.target.checked }))}
+                      />
+                      Controlar estoque
+                    </label>
                     <Button type="submit" disabled={adicionandoSabor} className="text-xs py-1.5 px-3">
                       {adicionandoSabor ? 'Adicionando...' : 'Adicionar sabor'}
                     </Button>
@@ -394,10 +424,20 @@ export function PaginaCardapioAdmin() {
                         value={item.qtdDisponivel}
                         onChange={(e) => atualizarCampoNovoItem(index, 'qtdDisponivel', e.target.value)}
                         placeholder="Estoque"
-                        required
+                        required={item.controlaEstoque}
+                        disabled={!item.controlaEstoque}
                         className="w-20 px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
-                          focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                          focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb
+                          disabled:opacity-40 disabled:cursor-not-allowed"
                       />
+                      <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                        <input
+                          type="checkbox"
+                          checked={item.controlaEstoque}
+                          onChange={(e) => atualizarControlaEstoqueNovoItem(index, e.target.checked)}
+                        />
+                        Controlar estoque
+                      </label>
                       <button
                         type="button"
                         onClick={() => setNovosItens((atual) => atual.filter((_, i) => i !== index))}

@@ -48,15 +48,18 @@ export function PaginaCardapio() {
         <div className="grid gap-3 pb-24">
           {cardapio.itens.map((item) => {
             const qtd = quantidadeNoCarrinho(item.id);
-            const semEstoque = item.qtdDisponivel <= 0;
+            const semEstoque = item.controlaEstoque && item.qtdDisponivel <= 0;
+            const limiteQtd = item.controlaEstoque ? item.qtdDisponivel : 99;
             return (
               <Card key={item.id} className="flex justify-between items-center gap-4">
                 <div className="min-w-0">
                   <h2 className="font-display text-lg text-ink">{item.sabor}</h2>
                   {item.descricao && <p className="text-sm text-ink-soft mt-0.5">{item.descricao}</p>}
-                  <p className="text-xs text-ink-soft mt-1">
-                    {semEstoque ? 'Esgotado' : `${item.qtdDisponivel} disponíveis`}
-                  </p>
+                  {item.controlaEstoque && (
+                    <p className="text-xs text-ink-soft mt-1">
+                      {semEstoque ? 'Esgotado' : `${item.qtdDisponivel} disponíveis`}
+                    </p>
+                  )}
                   <span className="font-mono text-herb-dark font-medium block mt-1">
                     R$ {Number(item.preco).toFixed(2)}
                   </span>
@@ -86,7 +89,7 @@ export function PaginaCardapio() {
                     <button
                       type="button"
                       aria-label="Aumentar quantidade"
-                      disabled={qtd >= item.qtdDisponivel}
+                      disabled={qtd >= limiteQtd}
                       className="w-8 h-8 rounded-md border border-line text-ink hover:bg-parchment-dark disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => definirQuantidade(item, qtd + 1)}
                     >

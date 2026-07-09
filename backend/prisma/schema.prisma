@@ -42,13 +42,14 @@ model Cardapio {
 }
 
 model ItemCardapio {
-  id             String   @id @default(uuid())
-  cardapioId     String
-  sabor          String
-  descricao      String?
-  preco          Decimal  @db.Decimal(10, 2)
-  qtdDisponivel  Int
-  ativo          Boolean  @default(true)
+  id              String   @id @default(uuid())
+  cardapioId      String
+  sabor           String
+  descricao       String?
+  preco           Decimal  @db.Decimal(10, 2)
+  qtdDisponivel   Int
+  controlaEstoque Boolean  @default(true)
+  ativo           Boolean  @default(true)
 
   cardapio    Cardapio     @relation(fields: [cardapioId], references: [id])
   itensPedido ItemPedido[]

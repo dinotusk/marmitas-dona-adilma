@@ -31,6 +31,7 @@ const criarCardapioSchema = z.object({
         descricao: z.string().optional(),
         preco: z.number().positive(),
         qtdDisponivel: z.number().int().nonnegative(),
+        controlaEstoque: z.boolean().optional(),
       })
     )
     .min(1),
@@ -62,6 +63,7 @@ const criarItemSchema = z.object({
   descricao: z.string().optional(),
   preco: z.number().positive(),
   qtdDisponivel: z.number().int().nonnegative(),
+  controlaEstoque: z.boolean().optional(),
 });
 
 router.post('/:cardapioId/itens', requireAdmin, async (req, res) => {
@@ -87,6 +89,7 @@ const patchItemSchema = z.object({
   ativo: z.boolean().optional(),
   preco: z.number().positive().optional(),
   qtdDisponivel: z.number().int().nonnegative().optional(),
+  controlaEstoque: z.boolean().optional(),
   descricao: z.string().optional(),
 });
 

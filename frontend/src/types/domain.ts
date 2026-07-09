@@ -22,6 +22,7 @@ export interface ItemCardapio {
   descricao: string | null;
   preco: string; // Decimal do Prisma serializa como string em JSON
   qtdDisponivel: number;
+  controlaEstoque: boolean;
   ativo: boolean;
 }
 
