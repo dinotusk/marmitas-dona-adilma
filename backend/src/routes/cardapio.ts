@@ -56,6 +56,32 @@ router.post('/', requireAdmin, async (req, res) => {
   res.status(201).json(cardapio);
 });
 
+// ---------- ADMIN: adicionar item a um cardápio existente ----------
+const criarItemSchema = z.object({
+  sabor: z.string().min(1),
+  descricao: z.string().optional(),
+  preco: z.number().positive(),
+  qtdDisponivel: z.number().int().nonnegative(),
+});
+
+router.post('/:cardapioId/itens', requireAdmin, async (req, res) => {
+  const parsed = criarItemSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ erro: 'Dados inválidos', detalhes: parsed.error.flatten() });
+  }
+
+  const cardapio = await prisma.cardapio.findUnique({ where: { id: req.params.cardapioId } });
+  if (!cardapio) {
+    return res.status(404).json({ erro: 'Cardápio não encontrado' });
+  }
+
+  const item = await prisma.itemCardapio.create({
+    data: { ...parsed.data, cardapioId: req.params.cardapioId },
+  });
+
+  res.status(201).json(item);
+});
+
 // ---------- ADMIN: ativar/desativar item do cardápio ----------
 const patchItemSchema = z.object({
   ativo: z.boolean().optional(),

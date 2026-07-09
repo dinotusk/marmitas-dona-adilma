@@ -110,6 +110,10 @@ export function PaginaCardapioAdmin() {
   const [criando, setCriando] = useState(false);
   const [erroCriacao, setErroCriacao] = useState<string | null>(null);
 
+  const [novoSabor, setNovoSabor] = useState<NovoItem>(novoItemVazio());
+  const [adicionandoSabor, setAdicionandoSabor] = useState(false);
+  const [erroAdicionarSabor, setErroAdicionarSabor] = useState<string | null>(null);
+
   function carregarCardapios() {
     api
       .get<Cardapio[]>('/cardapio/todos', true)
@@ -166,6 +170,33 @@ export function PaginaCardapioAdmin() {
     }
   }
 
+  async function handleAdicionarSabor(e: FormEvent) {
+    e.preventDefault();
+    if (!cardapioSelecionado) return;
+    setErroAdicionarSabor(null);
+    setAdicionandoSabor(true);
+    try {
+      const item = await api.post<ItemCardapio>(
+        `/cardapio/${cardapioSelecionado.id}/itens`,
+        {
+          sabor: novoSabor.sabor,
+          descricao: novoSabor.descricao.trim() || undefined,
+          preco: Number(novoSabor.preco),
+          qtdDisponivel: Number(novoSabor.qtdDisponivel),
+        },
+        true
+      );
+      setCardapios((atual) =>
+        atual.map((c) => (c.id === cardapioSelecionado.id ? { ...c, itens: [...c.itens, item] } : c))
+      );
+      setNovoSabor(novoItemVazio());
+    } catch (e) {
+      setErroAdicionarSabor(e instanceof ApiError ? e.message : 'Não foi possível adicionar o sabor');
+    } finally {
+      setAdicionandoSabor(false);
+    }
+  }
+
   const cardapioSelecionado = cardapios.find((c) => c.id === selecionadoId) ?? null;
 
   return (
@@ -214,6 +245,54 @@ export function PaginaCardapioAdmin() {
                     onSalvo={(atualizado) => atualizarItemLocal(cardapioSelecionado.id, atualizado)}
                   />
                 ))}
+
+                <form onSubmit={handleAdicionarSabor} className="pt-3 border-t border-line mt-1">
+                  <p className="text-sm font-medium text-ink-soft mb-2">Adicionar sabor a esse cardápio</p>
+                  <div className="flex flex-wrap gap-2">
+                    <input
+                      value={novoSabor.sabor}
+                      onChange={(e) => setNovoSabor((atual) => ({ ...atual, sabor: e.target.value }))}
+                      placeholder="Sabor"
+                      required
+                      className="flex-1 min-w-[140px] px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
+                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                    />
+                    <input
+                      value={novoSabor.descricao}
+                      onChange={(e) => setNovoSabor((atual) => ({ ...atual, descricao: e.target.value }))}
+                      placeholder="Descrição (opcional)"
+                      className="flex-1 min-w-[140px] px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
+                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={novoSabor.preco}
+                      onChange={(e) => setNovoSabor((atual) => ({ ...atual, preco: e.target.value }))}
+                      placeholder="Preço"
+                      required
+                      className="w-24 px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
+                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      value={novoSabor.qtdDisponivel}
+                      onChange={(e) => setNovoSabor((atual) => ({ ...atual, qtdDisponivel: e.target.value }))}
+                      placeholder="Estoque"
+                      required
+                      className="w-20 px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
+                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                    />
+                    <Button type="submit" disabled={adicionandoSabor} className="text-xs py-1.5 px-3">
+                      {adicionandoSabor ? 'Adicionando...' : 'Adicionar sabor'}
+                    </Button>
+                    {erroAdicionarSabor && <span className="text-xs text-paprika-dark">{erroAdicionarSabor}</span>}
+                  </div>
+                </form>
               </div>
             )}
           </Card>
