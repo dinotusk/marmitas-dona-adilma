@@ -18,7 +18,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex">
       <aside className="w-56 border-r border-line bg-cream-card flex flex-col">
         <div className="px-5 py-5 border-b border-line">
-          <span className="font-display text-xl text-ink">Dona Dilma</span>
+          <span className="font-display text-xl text-ink">Dona Adilma</span>
           <span className="block text-xs text-ink-soft mt-0.5">painel admin</span>
         </div>
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1">

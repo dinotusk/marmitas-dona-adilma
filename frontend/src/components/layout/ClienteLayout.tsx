@@ -5,7 +5,7 @@ export function ClienteLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-line bg-cream-card">
         <div className="max-w-3xl mx-auto px-4 py-5 flex items-baseline gap-2">
-          <span className="font-display text-2xl text-ink">Dona Dilma</span>
+          <span className="font-display text-2xl text-ink">Dona Adilma</span>
           <span className="badge-pill text-[10px] px-2 py-0.5 rounded-full bg-herb/10 text-herb-dark">
             marmitas congeladas
           </span>
