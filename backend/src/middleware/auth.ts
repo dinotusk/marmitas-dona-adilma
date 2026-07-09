@@ -7,6 +7,10 @@ export interface AuthRequest extends Request {
   adminId?: string;
 }
 
+export interface ClienteAuthRequest extends Request {
+  clienteId?: string;
+}
+
 // RN001: apenas administradora acessa gestão. Este middleware protege
 // todas as rotas de admin (/api/admin/*)
 export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
@@ -19,8 +23,33 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
   const token = authHeader.split(' ')[1];
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { adminId: string };
+    const payload = jwt.verify(token, JWT_SECRET) as { adminId?: string };
+    if (!payload.adminId) {
+      return res.status(401).json({ erro: 'Token inválido ou expirado' });
+    }
     req.adminId = payload.adminId;
+    next();
+  } catch {
+    return res.status(401).json({ erro: 'Token inválido ou expirado' });
+  }
+}
+
+// Protege rotas que exigem um cliente autenticado (conta com telefone/senha).
+export function requireCliente(req: ClienteAuthRequest, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ erro: 'Token não fornecido' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as { clienteId?: string };
+    if (!payload.clienteId) {
+      return res.status(401).json({ erro: 'Token inválido ou expirado' });
+    }
+    req.clienteId = payload.clienteId;
     next();
   } catch {
     return res.status(401).json({ erro: 'Token inválido ou expirado' });

@@ -9,6 +9,7 @@ import cardapioRoutes from './routes/cardapio';
 import pedidosRoutes from './routes/pedidos';
 import producaoRoutes from './routes/producao';
 import financeiroRoutes from './routes/financeiro';
+import clientesRoutes from './routes/clientes';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -28,6 +29,7 @@ app.use('/api/cardapio', cardapioRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/producao', producaoRoutes);
 app.use('/api/financeiro', financeiroRoutes);
+app.use('/api/clientes', clientesRoutes);
 
 // Serve o build do frontend (SPA) na mesma origem da API, evitando CORS
 // e configuração de URL separada em produção.

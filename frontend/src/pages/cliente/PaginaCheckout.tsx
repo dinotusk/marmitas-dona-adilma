@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { api, ApiError } from '@/lib/api';
 import { useCarrinho } from '@/contexts/CarrinhoContext';
+import { useClienteAuth } from '@/contexts/ClienteAuthContext';
 import type { FormaPagamento, Pedido } from '@/types/domain';
 
 const OPCOES_PAGAMENTO: { valor: FormaPagamento; label: string }[] = [
@@ -16,11 +17,12 @@ const OPCOES_PAGAMENTO: { valor: FormaPagamento; label: string }[] = [
 
 export function PaginaCheckout() {
   const { itens, valorTotal, limpar } = useCarrinho();
+  const { cliente } = useClienteAuth();
   const navigate = useNavigate();
 
-  const [nome, setNome] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [endereco, setEndereco] = useState('');
+  const [nome, setNome] = useState(cliente?.nome ?? '');
+  const [telefone, setTelefone] = useState(cliente?.telefone ?? '');
+  const [endereco, setEndereco] = useState(cliente?.endereco ?? '');
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>('PIX');
   const [observacoes, setObservacoes] = useState('');
   const [enviando, setEnviando] = useState(false);

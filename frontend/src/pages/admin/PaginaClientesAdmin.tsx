@@ -6,7 +6,9 @@ import { api, ApiError } from '@/lib/api';
 interface ClienteHistorico {
   nome: string;
   telefone: string;
+  temConta: boolean;
   quantidadePedidos: number;
+  pedidosCancelados: number;
   valorTotalGasto: number;
   saboresPreferidos: Record<string, number>;
 }
@@ -66,11 +68,23 @@ export function PaginaClientesAdmin() {
         {filtrados.map((cliente) => (
           <Card key={cliente.telefone} className="flex flex-wrap justify-between items-center gap-3">
             <div>
-              <p className="font-medium text-ink">{cliente.nome}</p>
+              <p className="font-medium text-ink">
+                {cliente.nome}
+                {cliente.temConta && (
+                  <span className="badge-pill ml-2 px-1.5 py-0.5 text-[10px] rounded-full bg-herb/10 text-herb-dark align-middle">
+                    conta
+                  </span>
+                )}
+              </p>
               <p className="text-sm text-ink-soft">{cliente.telefone}</p>
               {saborFavorito(cliente.saboresPreferidos) && (
                 <p className="text-xs text-ink-soft mt-1">
                   Favorito: {saborFavorito(cliente.saboresPreferidos)}
+                </p>
+              )}
+              {cliente.pedidosCancelados > 0 && (
+                <p className="text-xs text-paprika-dark mt-1">
+                  ⚠ {cliente.pedidosCancelados} {cliente.pedidosCancelados === 1 ? 'pedido cancelado' : 'pedidos cancelados'}
                 </p>
               )}
             </div>

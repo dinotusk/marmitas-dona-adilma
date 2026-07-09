@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CarrinhoProvider } from '@/contexts/CarrinhoContext';
+import { ClienteAuthProvider } from '@/contexts/ClienteAuthContext';
 import { RotaProtegida } from '@/components/RotaProtegida';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
 import { PaginaCardapio } from '@/pages/cliente/PaginaCardapio';
 import { PaginaCheckout } from '@/pages/cliente/PaginaCheckout';
 import { PaginaAcompanhamento } from '@/pages/cliente/PaginaAcompanhamento';
+import { PaginaLoginCliente } from '@/pages/cliente/PaginaLoginCliente';
+import { PaginaMeusPedidos } from '@/pages/cliente/PaginaMeusPedidos';
 import { PaginaLoginAdmin } from '@/pages/admin/PaginaLoginAdmin';
 import { PaginaPedidosAdmin } from '@/pages/admin/PaginaPedidosAdmin';
 import { PaginaCardapioAdmin } from '@/pages/admin/PaginaCardapioAdmin';
@@ -19,80 +22,84 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CarrinhoProvider>
-          <Routes>
-            {/* Área do cliente */}
-            <Route path="/" element={<PaginaCardapio />} />
-            <Route path="/checkout" element={<PaginaCheckout />} />
-            <Route path="/pedido/:id" element={<PaginaAcompanhamento />} />
+        <ClienteAuthProvider>
+          <CarrinhoProvider>
+            <Routes>
+              {/* Área do cliente */}
+              <Route path="/" element={<PaginaCardapio />} />
+              <Route path="/checkout" element={<PaginaCheckout />} />
+              <Route path="/pedido/:id" element={<PaginaAcompanhamento />} />
+              <Route path="/login" element={<PaginaLoginCliente />} />
+              <Route path="/meus-pedidos" element={<PaginaMeusPedidos />} />
 
-            {/* Área admin */}
-            <Route path="/admin/login" element={<PaginaLoginAdmin />} />
-            <Route
-              path="/admin/pedidos"
-              element={
-                <RotaProtegida>
-                  <AdminLayout>
-                    <PaginaPedidosAdmin />
-                  </AdminLayout>
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/admin/cardapio"
-              element={
-                <RotaProtegida>
-                  <AdminLayout>
-                    <PaginaCardapioAdmin />
-                  </AdminLayout>
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/admin/producao"
-              element={
-                <RotaProtegida>
-                  <AdminLayout>
-                    <PaginaProducaoAdmin />
-                  </AdminLayout>
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/admin/financeiro"
-              element={
-                <RotaProtegida>
-                  <AdminLayout>
-                    <PaginaFinanceiroAdmin />
-                  </AdminLayout>
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/admin/perfil"
-              element={
-                <RotaProtegida>
-                  <AdminLayout>
-                    <PaginaPerfilAdmin />
-                  </AdminLayout>
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/admin/clientes"
-              element={
-                <RotaProtegida>
-                  <AdminLayout>
-                    <PaginaClientesAdmin />
-                  </AdminLayout>
-                </RotaProtegida>
-              }
-            />
-            <Route path="/admin" element={<Navigate to="/admin/pedidos" replace />} />
+              {/* Área admin */}
+              <Route path="/admin/login" element={<PaginaLoginAdmin />} />
+              <Route
+                path="/admin/pedidos"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaPedidosAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/cardapio"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaCardapioAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/producao"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaProducaoAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/financeiro"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaFinanceiroAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/perfil"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaPerfilAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/clientes"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaClientesAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route path="/admin" element={<Navigate to="/admin/pedidos" replace />} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </CarrinhoProvider>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </CarrinhoProvider>
+        </ClienteAuthProvider>
       </AuthProvider>
     </BrowserRouter>
   );

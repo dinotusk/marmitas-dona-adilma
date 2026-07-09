@@ -1,6 +1,6 @@
 // Cliente de API — wrapper fino sobre fetch, centralizando:
 // - base URL (via proxy do Vite em dev, mesma origem em produção)
-// - anexação do token de admin quando presente
+// - anexação do token de admin ou de cliente quando presente
 // - tratamento consistente de erros vindos do backend
 
 const API_BASE = '/api';
@@ -20,11 +20,15 @@ function getAdminToken(): string | null {
   return localStorage.getItem('admin_token');
 }
 
+function getClienteToken(): string | null {
+  return localStorage.getItem('cliente_token');
+}
+
 async function request<T>(
   path: string,
-  options: { method?: string; body?: unknown; auth?: boolean } = {}
+  options: { method?: string; body?: unknown; auth?: boolean; authCliente?: boolean } = {}
 ): Promise<T> {
-  const { method = 'GET', body, auth = false } = options;
+  const { method = 'GET', body, auth = false, authCliente = false } = options;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -32,6 +36,9 @@ async function request<T>(
 
   if (auth) {
     const token = getAdminToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+  } else if (authCliente) {
+    const token = getClienteToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
@@ -52,9 +59,11 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T>(path: string, auth = false) => request<T>(path, { method: 'GET', auth }),
-  post: <T>(path: string, body?: unknown, auth = false) => request<T>(path, { method: 'POST', body, auth }),
-  patch: <T>(path: string, body?: unknown, auth = false) => request<T>(path, { method: 'PATCH', body, auth }),
+  get: <T>(path: string, auth = false, authCliente = false) => request<T>(path, { method: 'GET', auth, authCliente }),
+  post: <T>(path: string, body?: unknown, auth = false, authCliente = false) =>
+    request<T>(path, { method: 'POST', body, auth, authCliente }),
+  patch: <T>(path: string, body?: unknown, auth = false, authCliente = false) =>
+    request<T>(path, { method: 'PATCH', body, auth, authCliente }),
 };
 
-export { ApiError, getAdminToken };
+export { ApiError, getAdminToken, getClienteToken };

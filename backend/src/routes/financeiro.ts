@@ -120,7 +120,9 @@ router.get('/clientes', requireAdmin, async (_req, res) => {
   const historico = clientes.map((c) => ({
     nome: c.nome,
     telefone: c.telefone,
+    temConta: c.senhaHash !== null,
     quantidadePedidos: c.pedidos.length,
+    pedidosCancelados: c.pedidos.filter((p) => p.statusPagamento === 'CANCELADO').length,
     valorTotalGasto: c.pedidos.reduce((acc, p) => acc + Number(p.valorTotal), 0),
     saboresPreferidos: c.pedidos
       .flatMap((p) => p.itens.map((i) => i.itemCardapio.sabor))

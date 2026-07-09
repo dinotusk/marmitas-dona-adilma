@@ -25,6 +25,7 @@ model Cliente {
   nome      String
   telefone  String   @unique
   endereco  String
+  senhaHash String? // null = nunca criou conta, sempre pediu como convidado
   createdAt DateTime @default(now())
 
   pedidos Pedido[]
