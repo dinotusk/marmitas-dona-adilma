@@ -172,14 +172,6 @@ export function PaginaCardapio() {
         )}
       </section>
 
-      <section className="mb-24 rounded-xl bg-cocoa px-5 py-8 text-vanilla sm:px-8">
-        <h2 className="font-display text-3xl">Primeiro pedido? Ganhe 15% de desconto</h2>
-        <p className="mt-2 max-w-xl text-sm text-vanilla/70">Fale com a equipe para conhecer os combos da semana.</p>
-        <Button variant="secondary" className="mt-5" onClick={() => document.getElementById('cardapio-semana')?.scrollIntoView({ behavior: 'smooth' })}>
-          Criar minha semana
-        </Button>
-      </section>
-
       {quantidadeTotal > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-cream-card">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
