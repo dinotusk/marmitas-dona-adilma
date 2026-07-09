@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ClienteLayout } from '@/components/layout/ClienteLayout';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
-import { StatusPedidoBadge, StatusUnidadeBadge } from '@/components/ui/StatusBadge';
 import { api, ApiError } from '@/lib/api';
 import type { Pedido, StatusPedido } from '@/types/domain';
 
@@ -14,12 +12,12 @@ const FORMA_PAGAMENTO_LABEL: Record<string, string> = {
   DINHEIRO: 'Dinheiro',
 };
 
-const ETAPAS: { status: StatusPedido; label: string }[] = [
-  { status: 'RECEBIDO', label: 'Recebido' },
-  { status: 'EM_PREPARACAO', label: 'Em preparo' },
-  { status: 'PRONTO', label: 'Pronto' },
-  { status: 'SAIU_ENTREGA', label: 'Entrega' },
-  { status: 'ENTREGUE', label: 'Entregue' },
+const ETAPAS: { status: StatusPedido; label: string; detalhe: string }[] = [
+  { status: 'RECEBIDO', label: 'Recebido', detalhe: 'Agora mesmo' },
+  { status: 'EM_PREPARACAO', label: 'Em produção', detalhe: 'Separando seu pedido' },
+  { status: 'PRONTO', label: 'Pronto', detalhe: 'Aguardando entrega' },
+  { status: 'SAIU_ENTREGA', label: 'Entrega', detalhe: 'Saiu para entrega' },
+  { status: 'ENTREGUE', label: 'Entregue', detalhe: 'Pedido finalizado' },
 ];
 
 function formatarMoeda(valor: number | string) {
@@ -51,12 +49,19 @@ export function PaginaAcompanhamento() {
 
   return (
     <ClienteLayout>
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-5 rounded-xl bg-herb px-5 py-8 text-center text-cream-card sm:px-8">
-          <span className="badge-pill rounded-full bg-cream-card/15 px-3 py-1 text-[10px]">Pedido confirmado</span>
-          <h1 className="mt-4 font-display text-4xl">Aí! Sua marmita já entrou na fila</h1>
-          {pedido && <p className="mt-2 font-mono text-sm text-cream-card/75">Pedido #{pedido.id.slice(0, 8)}</p>}
-        </div>
+      <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-line bg-vanilla shadow-sm">
+        <header className="relative overflow-hidden bg-herb px-6 pb-10 pt-8 text-center text-cream-card">
+          <span className="absolute left-6 top-10 h-3 w-3 rounded-full bg-straw" />
+          <span className="absolute right-10 top-16 h-2 w-2 rounded-full bg-rose" />
+          <span className="absolute bottom-8 right-16 h-4 w-4 rotate-45 bg-herb-light" />
+          <span className="badge-pill inline-flex rotate-[-4deg] rounded-sm bg-straw px-4 py-2 text-[10px] text-cocoa">
+            Pedido confirmado!
+          </span>
+          <h1 className="mx-auto mt-6 max-w-xs font-display text-3xl leading-tight">
+            Aê! Sua marmita já entrou na fila
+          </h1>
+          {pedido && <p className="mt-2 font-mono text-xs text-cream-card/80">Pedido #{pedido.id.slice(0, 8)}</p>}
+        </header>
 
         {carregando && (
           <div className="flex justify-center py-16">
@@ -64,67 +69,66 @@ export function PaginaAcompanhamento() {
           </div>
         )}
 
-        {erro && !carregando && (
-          <Card className="border-paprika/40">
-            <p className="text-sm text-paprika-dark">{erro}</p>
-          </Card>
-        )}
+        {erro && !carregando && <p className="m-4 rounded-lg bg-paprika/10 px-3 py-2 text-sm text-paprika-dark">{erro}</p>}
 
         {pedido && !carregando && (
-          <div className="grid gap-4">
-            <Card>
-              <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-5 px-5 py-5">
+            <section>
+              <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-ink-soft">Status atual</p>
-                  <div className="mt-1">
-                    <StatusPedidoBadge status={pedido.status} />
-                  </div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Chega em</p>
+                  <p className="mt-1 font-mono text-xs text-ink-soft">Atualiza automaticamente</p>
                 </div>
-                <p className="font-mono text-xl font-semibold text-herb-dark">{formatarMoeda(pedido.valorTotal)}</p>
+                <span className="font-display text-xl text-ink">35-45 min</span>
               </div>
 
-              <div className="mt-6 space-y-0">
+              <div>
                 {ETAPAS.map((etapa, index) => {
                   const concluida = index <= etapaAtual;
                   return (
-                    <div key={etapa.status} className="grid grid-cols-[24px_1fr] gap-3">
-                      <div className="flex flex-col items-center">
-                        <span className={`h-4 w-4 rounded-full border-2 ${concluida ? 'border-herb bg-herb' : 'border-line bg-cream-card'}`} />
-                        {index < ETAPAS.length - 1 && <span className={`h-8 w-px ${index < etapaAtual ? 'bg-herb' : 'bg-line'}`} />}
+                    <div key={etapa.status} className="grid grid-cols-[18px_1fr] gap-3">
+                      <div className="flex flex-col items-center pt-1">
+                        <span className={`h-3 w-3 rounded-full ${concluida ? 'bg-herb' : 'bg-line'}`} />
+                        {index < ETAPAS.length - 1 && <span className={`h-9 w-px ${index < etapaAtual ? 'bg-herb' : 'bg-line'}`} />}
                       </div>
-                      <p className={`pb-4 text-sm font-semibold ${concluida ? 'text-ink' : 'text-ink-soft'}`}>{etapa.label}</p>
+                      <div className="pb-4">
+                        <p className={`text-sm font-bold ${concluida ? 'text-ink' : 'text-ink-soft'}`}>{etapa.label}</p>
+                        <p className="mt-0.5 text-xs text-ink-soft">{etapa.detalhe}</p>
+                      </div>
                     </div>
                   );
                 })}
               </div>
-            </Card>
+            </section>
 
-            <Card>
-              <h2 className="font-display text-2xl text-ink">Itens</h2>
-              <div className="mt-4 space-y-3">
+            <section className="rounded-lg bg-cream-card p-4">
+              <h2 className="font-display text-xl text-ink">Resumo</h2>
+              <div className="mt-3 space-y-2">
                 {pedido.itens.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg bg-parchment p-3 text-sm">
+                  <div key={item.id} className="flex justify-between gap-3 text-sm">
                     <span className="font-semibold text-ink">
                       {item.quantidade}x {item.itemCardapio.sabor}
                     </span>
-                    <StatusUnidadeBadge status={item.statusUnidade} />
+                    <span className="font-mono text-ink-soft">{formatarMoeda(Number(item.itemCardapio.preco) * item.quantidade)}</span>
                   </div>
                 ))}
               </div>
-            </Card>
-
-            <Card>
-              <h2 className="font-display text-2xl text-ink">Entrega</h2>
-              <div className="mt-3 space-y-1 text-sm text-ink-soft">
-                <p>{pedido.cliente.nome} - {pedido.cliente.telefone}</p>
-                <p>{pedido.cliente.endereco}</p>
-                <p>Pagamento: {FORMA_PAGAMENTO_LABEL[pedido.formaPagamento] ?? pedido.formaPagamento}</p>
-                {pedido.observacoes && <p>Obs: {pedido.observacoes}</p>}
+              <div className="mt-3 flex justify-between border-t border-line pt-3">
+                <span className="font-bold text-ink">Total</span>
+                <span className="font-mono font-bold text-herb-dark">{formatarMoeda(pedido.valorTotal)}</span>
               </div>
-            </Card>
+            </section>
 
-            <Button variant="ghost" className="justify-self-center" onClick={() => window.location.assign('/')}>
-              Fazer outro pedido
+            <section className="rounded-lg bg-cream-card p-4 text-sm text-ink-soft">
+              <p className="font-bold text-ink">{pedido.cliente.nome}</p>
+              <p className="mt-1">{pedido.cliente.telefone}</p>
+              <p className="mt-1">{pedido.cliente.endereco}</p>
+              <p className="mt-1">Pagamento: {FORMA_PAGAMENTO_LABEL[pedido.formaPagamento] ?? pedido.formaPagamento}</p>
+              {pedido.observacoes && <p className="mt-1">Obs: {pedido.observacoes}</p>}
+            </section>
+
+            <Button variant="secondary" className="w-full" onClick={() => window.location.assign('/')}>
+              Acompanhar pedido
             </Button>
           </div>
         )}
