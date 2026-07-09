@@ -36,7 +36,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="px-4 py-4 border-t border-line">
-          <p className="text-xs text-ink-soft mb-2 truncate">{admin?.nome}</p>
+          <NavLink
+            to="/admin/perfil"
+            className={({ isActive }) =>
+              `block text-xs mb-2 truncate hover:underline ${isActive ? 'text-herb-dark font-medium' : 'text-ink-soft'}`
+            }
+          >
+            {admin?.nome}
+          </NavLink>
           <Button variant="ghost" onClick={logout} className="w-full text-xs py-1.5">
             Sair
           </Button>

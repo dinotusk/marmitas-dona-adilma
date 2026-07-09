@@ -61,17 +61,17 @@ export function PaginaFinanceiroAdmin() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
               <p className="text-xs text-ink-soft mb-1">Hoje</p>
-              <p className="font-display text-2xl text-herb-dark">R$ {dashboard.vendasDia.total.toFixed(2)}</p>
+              <p className="font-display text-2xl text-herb-dark">R$ {Number(dashboard.vendasDia.total).toFixed(2)}</p>
               <p className="text-xs text-ink-soft mt-1">{dashboard.vendasDia.quantidade} pedidos pagos</p>
             </Card>
             <Card>
               <p className="text-xs text-ink-soft mb-1">Essa semana</p>
-              <p className="font-display text-2xl text-herb-dark">R$ {dashboard.vendasSemana.total.toFixed(2)}</p>
+              <p className="font-display text-2xl text-herb-dark">R$ {Number(dashboard.vendasSemana.total).toFixed(2)}</p>
               <p className="text-xs text-ink-soft mt-1">{dashboard.vendasSemana.quantidade} pedidos pagos</p>
             </Card>
             <Card>
               <p className="text-xs text-ink-soft mb-1">Esse mês</p>
-              <p className="font-display text-2xl text-herb-dark">R$ {dashboard.vendasMes.total.toFixed(2)}</p>
+              <p className="font-display text-2xl text-herb-dark">R$ {Number(dashboard.vendasMes.total).toFixed(2)}</p>
               <p className="text-xs text-ink-soft mt-1">{dashboard.vendasMes.quantidade} pedidos pagos</p>
             </Card>
           </div>

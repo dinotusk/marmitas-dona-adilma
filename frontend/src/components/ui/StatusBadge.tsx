@@ -24,7 +24,7 @@ const LABELS_UNIDADE: Record<StatusUnidade, string> = {
   PRONTA: 'Pronta',
 };
 
-const LABELS_PAGAMENTO: Record<StatusPagamento, string> = {
+export const LABELS_PAGAMENTO: Record<StatusPagamento, string> = {
   PENDENTE: 'Pendente',
   PAGO: 'Pago',
   CANCELADO: 'Cancelado',

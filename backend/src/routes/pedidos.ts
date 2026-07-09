@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prismaClient';
 import { requireAdmin } from '../middleware/auth';
-import { StatusPedido, StatusUnidade } from '@prisma/client';
+import { StatusPedido, StatusUnidade, StatusPagamento } from '@prisma/client';
 import { notificarStatusPedido } from '../services/whatsappService';
 
 const router = Router();
@@ -154,6 +154,26 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
     numeroPedido: pedido.id.slice(0, 8),
     valorTotal: Number(pedido.valorTotal),
   }).catch((erro) => console.error('[WhatsApp] Erro inesperado:', erro));
+
+  res.json(pedido);
+});
+
+// ---------- ADMIN: atualizar status de pagamento (marcar como pago/cancelado) ----------
+const statusPagamentoSchema = z.object({
+  statusPagamento: z.nativeEnum(StatusPagamento),
+});
+
+router.patch('/:id/pagamento', requireAdmin, async (req, res) => {
+  const parsed = statusPagamentoSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ erro: 'Status de pagamento inválido' });
+  }
+
+  const pedido = await prisma.pedido.update({
+    where: { id: req.params.id },
+    data: { statusPagamento: parsed.data.statusPagamento },
+    include: { itens: { include: { itemCardapio: true } }, cliente: true },
+  });
 
   res.json(pedido);
 });

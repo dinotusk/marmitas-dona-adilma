@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
-import { StatusPedidoBadge, StatusUnidadeBadge, StatusPagamentoBadge, LABELS_PEDIDO } from '@/components/ui/StatusBadge';
+import {
+  StatusPedidoBadge,
+  StatusUnidadeBadge,
+  StatusPagamentoBadge,
+  LABELS_PEDIDO,
+  LABELS_PAGAMENTO,
+} from '@/components/ui/StatusBadge';
 import { api, ApiError } from '@/lib/api';
-import type { Pedido, ItemPedido, StatusPedido } from '@/types/domain';
+import type { Pedido, ItemPedido, StatusPedido, StatusPagamento } from '@/types/domain';
 
 const STATUS_OPCOES: StatusPedido[] = ['RECEBIDO', 'EM_PREPARACAO', 'PRONTO', 'SAIU_ENTREGA', 'ENTREGUE'];
+const STATUS_PAGAMENTO_OPCOES: StatusPagamento[] = ['PENDENTE', 'PAGO', 'CANCELADO'];
 
 const FORMA_PAGAMENTO_LABEL: Record<string, string> = {
   PIX: 'Pix',
@@ -41,6 +48,15 @@ export function PaginaPedidosAdmin() {
       setPedidos((atual) => atual.map((p) => (p.id === pedidoId ? atualizado : p)));
     } catch (e) {
       setErro(e instanceof ApiError ? e.message : 'Não foi possível atualizar o status do pedido');
+    }
+  }
+
+  async function atualizarStatusPagamento(pedidoId: string, statusPagamento: StatusPagamento) {
+    try {
+      const atualizado = await api.patch<Pedido>(`/pedidos/${pedidoId}/pagamento`, { statusPagamento }, true);
+      setPedidos((atual) => atual.map((p) => (p.id === pedidoId ? atualizado : p)));
+    } catch (e) {
+      setErro(e instanceof ApiError ? e.message : 'Não foi possível atualizar o status de pagamento');
     }
   }
 
@@ -143,18 +159,32 @@ export function PaginaPedidosAdmin() {
               <span className="font-mono text-herb-dark font-medium">
                 R$ {Number(pedido.valorTotal).toFixed(2)}
               </span>
-              <select
-                value={pedido.status}
-                onChange={(e) => atualizarStatus(pedido.id, e.target.value as StatusPedido)}
-                className="px-3 py-1.5 rounded-md border border-line bg-cream-card text-ink text-sm
-                  focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
-              >
-                {STATUS_OPCOES.map((status) => (
-                  <option key={status} value={status}>
-                    {LABELS_PEDIDO[status]}
-                  </option>
-                ))}
-              </select>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={pedido.statusPagamento}
+                  onChange={(e) => atualizarStatusPagamento(pedido.id, e.target.value as StatusPagamento)}
+                  className="px-3 py-1.5 rounded-md border border-line bg-cream-card text-ink text-sm
+                    focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                >
+                  {STATUS_PAGAMENTO_OPCOES.map((status) => (
+                    <option key={status} value={status}>
+                      {LABELS_PAGAMENTO[status]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={pedido.status}
+                  onChange={(e) => atualizarStatus(pedido.id, e.target.value as StatusPedido)}
+                  className="px-3 py-1.5 rounded-md border border-line bg-cream-card text-ink text-sm
+                    focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                >
+                  {STATUS_OPCOES.map((status) => (
+                    <option key={status} value={status}>
+                      {LABELS_PEDIDO[status]}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </Card>
         ))}

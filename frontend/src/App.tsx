@@ -12,6 +12,7 @@ import { PaginaPedidosAdmin } from '@/pages/admin/PaginaPedidosAdmin';
 import { PaginaCardapioAdmin } from '@/pages/admin/PaginaCardapioAdmin';
 import { PaginaProducaoAdmin } from '@/pages/admin/PaginaProducaoAdmin';
 import { PaginaFinanceiroAdmin } from '@/pages/admin/PaginaFinanceiroAdmin';
+import { PaginaPerfilAdmin } from '@/pages/admin/PaginaPerfilAdmin';
 
 function App() {
   return (
@@ -62,6 +63,16 @@ function App() {
                 <RotaProtegida>
                   <AdminLayout>
                     <PaginaFinanceiroAdmin />
+                  </AdminLayout>
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/admin/perfil"
+              element={
+                <RotaProtegida>
+                  <AdminLayout>
+                    <PaginaPerfilAdmin />
                   </AdminLayout>
                 </RotaProtegida>
               }

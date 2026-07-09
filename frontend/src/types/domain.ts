@@ -74,7 +74,9 @@ export interface FechamentoDia {
 }
 
 export interface DashboardFinanceiro {
-  vendasDia: { total: number; quantidade: number };
-  vendasSemana: { total: number; quantidade: number };
-  vendasMes: { total: number; quantidade: number };
+  // total vem como Decimal do Prisma (serializa como string) quando há vendas,
+  // ou como número 0 quando não há — sempre envolver com Number() ao exibir.
+  vendasDia: { total: number | string; quantidade: number };
+  vendasSemana: { total: number | string; quantidade: number };
+  vendasMes: { total: number | string; quantidade: number };
 }
