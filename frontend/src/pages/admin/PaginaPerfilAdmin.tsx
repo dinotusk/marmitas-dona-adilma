@@ -41,53 +41,68 @@ export function PaginaPerfilAdmin() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-ink mb-1">Meu perfil</h1>
-      <p className="text-ink-soft mb-6">Dados da conta e troca de senha.</p>
+      <div className="mb-6">
+        <span className="badge-pill rounded-full bg-herb/10 px-3 py-1 text-[10px] text-herb-dark">Configurações</span>
+        <h1 className="mt-3 font-display text-4xl text-ink">Meu perfil</h1>
+        <p className="mt-1 text-sm text-ink-soft">Dados da conta administrativa e segurança de acesso.</p>
+      </div>
 
-      <Card className="mb-6">
-        <h2 className="font-display text-lg text-ink mb-3">Conta</h2>
-        <p className="text-sm text-ink-soft">{admin?.nome}</p>
-        <p className="text-sm text-ink-soft">{admin?.email}</p>
-      </Card>
+      <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
+        <Card className="bg-vanilla">
+          <h2 className="font-display text-2xl text-ink">Conta</h2>
+          <div className="mt-5 space-y-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Nome</p>
+              <p className="mt-1 font-semibold text-ink">{admin?.nome}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">E-mail</p>
+              <p className="mt-1 text-sm text-ink">{admin?.email}</p>
+            </div>
+          </div>
+        </Card>
 
-      <Card>
-        <h2 className="font-display text-lg text-ink mb-4">Trocar senha</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm">
-          <Input
-            id="senhaAtual"
-            label="Senha atual"
-            type="password"
-            value={senhaAtual}
-            onChange={(e) => setSenhaAtual(e.target.value)}
-            required
-          />
-          <Input
-            id="novaSenha"
-            label="Nova senha"
-            type="password"
-            value={novaSenha}
-            onChange={(e) => setNovaSenha(e.target.value)}
-            minLength={6}
-            required
-          />
-          <Input
-            id="confirmarSenha"
-            label="Confirmar nova senha"
-            type="password"
-            value={confirmarSenha}
-            onChange={(e) => setConfirmarSenha(e.target.value)}
-            minLength={6}
-            required
-          />
+        <Card>
+          <h2 className="font-display text-2xl text-ink">Trocar senha</h2>
+          <p className="mt-1 text-sm text-ink-soft">Use uma senha com pelo menos 6 caracteres.</p>
 
-          {erro && <p className="text-sm text-paprika-dark">{erro}</p>}
-          {sucesso && <p className="text-sm text-herb-dark">Senha atualizada com sucesso.</p>}
+          <form onSubmit={handleSubmit} className="mt-5 grid max-w-xl gap-4">
+            <Input
+              id="senhaAtual"
+              label="Senha atual"
+              type="password"
+              value={senhaAtual}
+              onChange={(e) => setSenhaAtual(e.target.value)}
+              required
+            />
+            <Input
+              id="novaSenha"
+              label="Nova senha"
+              type="password"
+              value={novaSenha}
+              onChange={(e) => setNovaSenha(e.target.value)}
+              minLength={6}
+              required
+            />
+            <Input
+              id="confirmarSenha"
+              label="Confirmar nova senha"
+              type="password"
+              value={confirmarSenha}
+              onChange={(e) => setConfirmarSenha(e.target.value)}
+              minLength={6}
+              required
+            />
 
-          <Button type="submit" disabled={salvando} className="self-start">
-            {salvando ? 'Salvando...' : 'Salvar nova senha'}
-          </Button>
-        </form>
-      </Card>
+            {erro && <p className="rounded-lg bg-paprika/10 px-3 py-2 text-sm text-paprika-dark">{erro}</p>}
+            {sucesso && <p className="rounded-lg bg-herb/10 px-3 py-2 text-sm text-herb-dark">Senha atualizada com sucesso.</p>}
+
+            <Button type="submit" disabled={salvando} className="justify-self-start">
+              {salvando ? 'Salvando...' : 'Salvar nova senha'}
+            </Button>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }

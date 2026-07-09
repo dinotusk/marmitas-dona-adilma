@@ -6,23 +6,33 @@ export function ClienteLayout({ children }: { children: ReactNode }) {
   const { cliente } = useClienteAuth();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-line bg-cream-card">
-        <div className="max-w-3xl mx-auto px-4 py-5 flex items-baseline justify-between gap-2">
-          <div className="flex items-baseline gap-2">
-            <Link to="/" className="font-display text-2xl text-ink">
-              Dona Adilma
-            </Link>
-            <span className="badge-pill text-[10px] px-2 py-0.5 rounded-full bg-herb/10 text-herb-dark">
-              marmitas congeladas
+    <div className="min-h-screen bg-parchment text-ink">
+      <header className="sticky top-0 z-30 border-b border-line/80 bg-parchment/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+          <Link to="/" className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cocoa text-sm font-display text-vanilla">
+              DA
             </span>
-          </div>
-          <Link to={cliente ? '/meus-pedidos' : '/login'} className="text-sm text-herb-dark hover:underline">
-            {cliente ? cliente.nome.split(' ')[0] : 'Entrar'}
+            <span>
+              <span className="block font-display text-xl leading-none text-ink">Sabor de Casa</span>
+              <span className="mt-1 hidden text-xs text-ink-soft sm:block">Marmitas da Dona Adilma</span>
+            </span>
           </Link>
+
+          <nav className="flex items-center gap-3 text-sm font-medium">
+            <Link to="/" className="hidden text-ink-soft hover:text-herb-dark sm:inline">
+              Cardápio
+            </Link>
+            <Link to={cliente ? '/meus-pedidos' : '/login'} className="rounded-lg bg-herb px-4 py-2 text-cream-card hover:bg-herb-dark">
+              {cliente ? cliente.nome.split(' ')[0] : 'Entrar'}
+            </Link>
+          </nav>
         </div>
       </header>
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6">{children}</main>
+
+      <main className="mx-auto min-h-[calc(100vh-73px)] w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        {children}
+      </main>
     </div>
   );
 }

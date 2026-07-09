@@ -4,31 +4,33 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 
 const NAV_ITEMS = [
-  { to: '/admin/pedidos', label: 'Pedidos' },
+  { to: '/admin/pedidos', label: 'Visão geral' },
   { to: '/admin/cardapio', label: 'Cardápio' },
   { to: '/admin/producao', label: 'Produção' },
   { to: '/admin/financeiro', label: 'Financeiro' },
   { to: '/admin/clientes', label: 'Clientes' },
+  { to: '/admin/perfil', label: 'Configurações' },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const { admin, logout } = useAuth();
 
   return (
-    <div className="min-h-screen flex">
-      <aside className="w-56 border-r border-line bg-cream-card flex flex-col">
-        <div className="px-5 py-5 border-b border-line">
-          <span className="font-display text-xl text-ink">Dona Adilma</span>
-          <span className="block text-xs text-ink-soft mt-0.5">painel admin</span>
+    <div className="min-h-screen bg-parchment text-ink lg:flex">
+      <aside className="hidden w-64 shrink-0 flex-col bg-cocoa text-vanilla lg:flex">
+        <div className="border-b border-vanilla/10 px-6 py-6">
+          <span className="block font-display text-2xl">Marmitas</span>
+          <span className="mt-1 block text-xs text-vanilla/55">Painel administrativo</span>
         </div>
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+
+        <nav className="flex-1 space-y-1 px-4 py-5">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive ? 'bg-herb/15 text-herb-dark' : 'text-ink-soft hover:bg-parchment-dark'
+                `block rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  isActive ? 'bg-herb text-cream-card' : 'text-vanilla/72 hover:bg-vanilla/10 hover:text-cream-card'
                 }`
               }
             >
@@ -36,21 +38,46 @@ export function AdminLayout({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </nav>
-        <div className="px-4 py-4 border-t border-line">
-          <NavLink
-            to="/admin/perfil"
-            className={({ isActive }) =>
-              `block text-xs mb-2 truncate hover:underline ${isActive ? 'text-herb-dark font-medium' : 'text-ink-soft'}`
-            }
-          >
-            {admin?.nome}
-          </NavLink>
-          <Button variant="ghost" onClick={logout} className="w-full text-xs py-1.5">
+
+        <div className="border-t border-vanilla/10 px-5 py-5">
+          <p className="truncate text-sm font-semibold text-cream-card">{admin?.nome}</p>
+          <p className="mt-1 truncate text-xs text-vanilla/55">{admin?.email}</p>
+          <Button variant="secondary" onClick={logout} className="mt-4 w-full py-2 text-xs">
             Sair
           </Button>
         </div>
       </aside>
-      <main className="flex-1 px-8 py-6 overflow-y-auto">{children}</main>
+
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-30 border-b border-line bg-parchment/95 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <span className="block font-display text-xl">Marmitas</span>
+              <span className="text-xs text-ink-soft">{admin?.nome}</span>
+            </div>
+            <Button variant="ghost" onClick={logout} className="px-3 py-2 text-xs">
+              Sair
+            </Button>
+          </div>
+          <nav className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `shrink-0 rounded-lg px-3 py-2 text-xs font-semibold ${
+                    isActive ? 'bg-herb text-cream-card' : 'bg-cream-card text-ink-soft'
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </header>
+
+        <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+      </div>
     </div>
   );
 }
