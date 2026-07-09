@@ -33,7 +33,7 @@ interface DadosNotificacao {
   valorTotal: number;
 }
 
-function formatarTelefone(telefone: string): string {
+export function formatarTelefone(telefone: string): string {
   // Remove tudo que não é dígito e garante o prefixo do Brasil (55) se não vier
   const apenasNumeros = telefone.replace(/\D/g, '');
   return apenasNumeros.startsWith('55') ? apenasNumeros : `55${apenasNumeros}`;

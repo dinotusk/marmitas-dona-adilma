@@ -2,10 +2,20 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '../prismaClient';
 import { JWT_SECRET, requireAdmin, type AuthRequest } from '../middleware/auth';
 
 const router = Router();
+
+// Protege contra força bruta: 10 tentativas por IP a cada 15 minutos.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: 'Muitas tentativas de login. Tente novamente mais tarde.' },
+});
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -13,7 +23,7 @@ const loginSchema = z.object({
 });
 
 // POST /api/auth/login - login da administradora
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ erro: 'Dados inválidos', detalhes: parsed.error.flatten() });
@@ -51,7 +61,7 @@ const trocarSenhaSchema = z.object({
   novaSenha: z.string().min(6),
 });
 
-router.patch('/senha', requireAdmin, async (req: AuthRequest, res) => {
+router.patch('/senha', requireAdmin, loginLimiter, async (req: AuthRequest, res) => {
   const parsed = trocarSenhaSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ erro: 'Dados inválidos', detalhes: parsed.error.flatten() });

@@ -114,6 +114,8 @@ export function PaginaCardapioAdmin() {
   const [adicionandoSabor, setAdicionandoSabor] = useState(false);
   const [erroAdicionarSabor, setErroAdicionarSabor] = useState<string | null>(null);
 
+  const [alternandoAtivo, setAlternandoAtivo] = useState(false);
+
   function carregarCardapios() {
     api
       .get<Cardapio[]>('/cardapio/todos', true)
@@ -197,6 +199,23 @@ export function PaginaCardapioAdmin() {
     }
   }
 
+  async function handleAlternarAtivoCardapio() {
+    if (!cardapioSelecionado) return;
+    setAlternandoAtivo(true);
+    try {
+      const atualizado = await api.patch<Cardapio>(
+        `/cardapio/${cardapioSelecionado.id}`,
+        { ativo: !cardapioSelecionado.ativo },
+        true
+      );
+      setCardapios((atual) => atual.map((c) => (c.id === atualizado.id ? { ...c, ativo: atualizado.ativo } : c)));
+    } catch (e) {
+      setErro(e instanceof ApiError ? e.message : 'Não foi possível atualizar o cardápio');
+    } finally {
+      setAlternandoAtivo(false);
+    }
+  }
+
   const cardapioSelecionado = cardapios.find((c) => c.id === selecionadoId) ?? null;
 
   return (
@@ -233,6 +252,24 @@ export function PaginaCardapioAdmin() {
                 </select>
               )}
             </div>
+
+            {cardapioSelecionado && (
+              <div className="flex items-center justify-between gap-3 mb-4 pb-4 border-b border-line">
+                <p className="text-sm text-ink-soft">
+                  {cardapioSelecionado.ativo
+                    ? 'Esse cardápio está visível para os clientes.'
+                    : 'Esse cardápio está pausado — clientes não veem essa semana.'}
+                </p>
+                <Button
+                  variant={cardapioSelecionado.ativo ? 'secondary' : 'primary'}
+                  onClick={handleAlternarAtivoCardapio}
+                  disabled={alternandoAtivo}
+                  className="text-xs py-1.5 px-3 shrink-0"
+                >
+                  {alternandoAtivo ? 'Salvando...' : cardapioSelecionado.ativo ? 'Pausar semana' : 'Reativar semana'}
+                </Button>
+              </div>
+            )}
 
             {!cardapioSelecionado && <p className="text-sm text-ink-soft">Nenhum cardápio cadastrado ainda.</p>}
 

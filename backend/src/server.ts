@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import path from 'path';
 
 import authRoutes from './routes/auth';
@@ -12,6 +13,11 @@ import financeiroRoutes from './routes/financeiro';
 const app = express();
 const PORT = process.env.PORT || 3333;
 
+// CSP desligada: o frontend carrega fontes do Google Fonts (fonts.googleapis.com/
+// fonts.gstatic.com) e configurar uma política restritiva pra isso é um passo
+// separado. As demais proteções do helmet (X-Frame-Options, X-Content-Type-Options
+// etc.) continuam ativas.
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 

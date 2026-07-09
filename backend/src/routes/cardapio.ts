@@ -104,6 +104,26 @@ router.patch('/itens/:itemId', requireAdmin, async (req, res) => {
   res.json(item);
 });
 
+// ---------- ADMIN: ativar/desativar o cardápio inteiro (pausar a semana) ----------
+const patchCardapioSchema = z.object({
+  ativo: z.boolean(),
+});
+
+router.patch('/:cardapioId', requireAdmin, async (req, res) => {
+  const parsed = patchCardapioSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ erro: 'Dados inválidos', detalhes: parsed.error.flatten() });
+  }
+
+  const cardapio = await prisma.cardapio.update({
+    where: { id: req.params.cardapioId },
+    data: { ativo: parsed.data.ativo },
+    include: { itens: true },
+  });
+
+  res.json(cardapio);
+});
+
 // ---------- ADMIN: listar todos os cardápios (histórico) ----------
 router.get('/todos', requireAdmin, async (_req, res) => {
   const cardapios = await prisma.cardapio.findMany({

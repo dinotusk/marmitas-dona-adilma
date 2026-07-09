@@ -8,7 +8,7 @@ import { notificarStatusPedido } from '../services/whatsappService';
 const router = Router();
 
 // ---------- CLIENTE: criar pedido (HU001) ----------
-const criarPedidoSchema = z.object({
+export const criarPedidoSchema = z.object({
   nome: z.string().min(1),
   telefone: z.string().min(8),
   endereco: z.string().min(1),
@@ -119,14 +119,36 @@ router.get('/:id', async (req, res) => {
 // ---------- ADMIN: painel de pedidos (HU002) ----------
 router.get('/', requireAdmin, async (req, res) => {
   const statusFiltro = req.query.status as StatusPedido | undefined;
+  const busca = (req.query.busca as string | undefined)?.trim();
+  const pagina = Math.max(1, Number(req.query.pagina) || 1);
+  const porPagina = Math.min(100, Math.max(1, Number(req.query.porPagina) || 20));
 
-  const pedidos = await prisma.pedido.findMany({
-    where: statusFiltro ? { status: statusFiltro } : undefined,
-    include: { itens: { include: { itemCardapio: true } }, cliente: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  const where = {
+    ...(statusFiltro ? { status: statusFiltro } : {}),
+    ...(busca
+      ? {
+          cliente: {
+            OR: [
+              { nome: { contains: busca, mode: 'insensitive' as const } },
+              { telefone: { contains: busca } },
+            ],
+          },
+        }
+      : {}),
+  };
 
-  res.json(pedidos);
+  const [pedidos, total] = await Promise.all([
+    prisma.pedido.findMany({
+      where,
+      include: { itens: { include: { itemCardapio: true } }, cliente: true },
+      orderBy: { createdAt: 'desc' },
+      skip: (pagina - 1) * porPagina,
+      take: porPagina,
+    }),
+    prisma.pedido.count({ where }),
+  ]);
+
+  res.json({ pedidos, total, pagina, porPagina, totalPaginas: Math.max(1, Math.ceil(total / porPagina)) });
 });
 
 // ---------- ADMIN: atualizar status geral do pedido (RN003) ----------

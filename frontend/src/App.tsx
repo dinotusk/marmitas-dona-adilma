@@ -13,6 +13,7 @@ import { PaginaCardapioAdmin } from '@/pages/admin/PaginaCardapioAdmin';
 import { PaginaProducaoAdmin } from '@/pages/admin/PaginaProducaoAdmin';
 import { PaginaFinanceiroAdmin } from '@/pages/admin/PaginaFinanceiroAdmin';
 import { PaginaPerfilAdmin } from '@/pages/admin/PaginaPerfilAdmin';
+import { PaginaClientesAdmin } from '@/pages/admin/PaginaClientesAdmin';
 
 function App() {
   return (
@@ -73,6 +74,16 @@ function App() {
                 <RotaProtegida>
                   <AdminLayout>
                     <PaginaPerfilAdmin />
+                  </AdminLayout>
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/admin/clientes"
+              element={
+                <RotaProtegida>
+                  <AdminLayout>
+                    <PaginaClientesAdmin />
                   </AdminLayout>
                 </RotaProtegida>
               }

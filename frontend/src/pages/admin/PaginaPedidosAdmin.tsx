@@ -20,20 +20,51 @@ const FORMA_PAGAMENTO_LABEL: Record<string, string> = {
   DINHEIRO: 'Dinheiro',
 };
 
+interface RespostaPedidos {
+  pedidos: Pedido[];
+  total: number;
+  pagina: number;
+  porPagina: number;
+  totalPaginas: number;
+}
+
 export function PaginaPedidosAdmin() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [filtro, setFiltro] = useState<StatusPedido | 'TODOS'>('TODOS');
+  const [buscaInput, setBuscaInput] = useState('');
+  const [busca, setBusca] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
+  // Debounce da busca por nome/telefone
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setBusca(buscaInput.trim());
+      setPagina(1);
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [buscaInput]);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [filtro]);
+
   const carregarPedidos = useCallback(() => {
-    const query = filtro === 'TODOS' ? '' : `?status=${filtro}`;
+    const params = new URLSearchParams();
+    if (filtro !== 'TODOS') params.set('status', filtro);
+    if (busca) params.set('busca', busca);
+    params.set('pagina', String(pagina));
     api
-      .get<Pedido[]>(`/pedidos${query}`, true)
-      .then(setPedidos)
+      .get<RespostaPedidos>(`/pedidos?${params.toString()}`, true)
+      .then((resposta) => {
+        setPedidos(resposta.pedidos);
+        setTotalPaginas(resposta.totalPaginas);
+      })
       .catch((e) => setErro(e instanceof ApiError ? e.message : 'Não foi possível carregar os pedidos'))
       .finally(() => setCarregando(false));
-  }, [filtro]);
+  }, [filtro, busca, pagina]);
 
   useEffect(() => {
     setCarregando(true);
@@ -84,6 +115,14 @@ export function PaginaPedidosAdmin() {
     <div>
       <h1 className="font-display text-3xl text-ink mb-1">Pedidos</h1>
       <p className="text-ink-soft mb-6">Acompanhe e atualize os pedidos em andamento.</p>
+
+      <input
+        value={buscaInput}
+        onChange={(e) => setBuscaInput(e.target.value)}
+        placeholder="Buscar por nome ou telefone do cliente..."
+        className="w-full mb-4 px-3.5 py-2.5 rounded-xl border border-line bg-cream-card text-ink text-sm
+          focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+      />
 
       <div className="flex flex-wrap gap-2 mb-6">
         <button
@@ -189,6 +228,28 @@ export function PaginaPedidosAdmin() {
           </Card>
         ))}
       </div>
+
+      {!carregando && totalPaginas > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            onClick={() => setPagina((p) => Math.max(1, p - 1))}
+            disabled={pagina === 1}
+            className="px-3 py-1.5 rounded-md border border-line text-sm text-ink-soft hover:bg-parchment-dark disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-ink-soft">
+            Página {pagina} de {totalPaginas}
+          </span>
+          <button
+            onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+            disabled={pagina === totalPaginas}
+            className="px-3 py-1.5 rounded-md border border-line text-sm text-ink-soft hover:bg-parchment-dark disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Próxima
+          </button>
+        </div>
+      )}
     </div>
   );
 }
