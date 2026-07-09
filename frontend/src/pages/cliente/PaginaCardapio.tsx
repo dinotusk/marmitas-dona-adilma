@@ -91,49 +91,52 @@ export function PaginaCardapio() {
 
   return (
     <ClienteLayout>
-      <section className="grid gap-6 rounded-xl bg-herb-light p-5 sm:p-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+      <section className="grid gap-6 overflow-hidden rounded-t-lg bg-herb-light p-6 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <span className="badge-pill rounded-full bg-paprika px-3 py-1 text-[10px] text-cream-card">Novo por aqui?</span>
-          <h1 className="mt-4 max-w-2xl font-display text-4xl leading-[0.95] text-ink sm:text-6xl">
+          <span className="badge-pill inline-flex rotate-[-3deg] rounded-sm bg-paprika px-3 py-1 text-[10px] text-cream-card">
+            Novo por aqui?
+          </span>
+          <h1 className="mt-5 max-w-xl font-display text-4xl leading-[0.95] text-ink sm:text-5xl lg:text-6xl">
             Marmita caseira, feita com carinho, direto na sua porta
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-ink-soft sm:text-base">
-            Comida de verdade, em porções práticas para organizar sua semana com sabor e tranquilidade.
+          <p className="mt-4 max-w-md text-sm leading-6 text-ink-soft">
+            Comida de verdade, sem conservante e sem enrolação. Escolha seus pratos favoritos e a gente cuida do resto.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button onClick={() => document.getElementById('cardapio-semana')?.scrollIntoView({ behavior: 'smooth' })}>
+            <Button className="px-4 py-2 text-xs" onClick={() => document.getElementById('cardapio-semana')?.scrollIntoView({ behavior: 'smooth' })}>
               Ver cardápio da semana
             </Button>
-            <Button variant="ghost" onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}>
+            <Button variant="ghost" className="px-4 py-2 text-xs" onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}>
               Como funciona
             </Button>
           </div>
         </div>
 
-        <div className="relative min-h-64 rounded-xl bg-vanilla p-5">
-          <div className="food-pattern h-full min-h-56 rounded-lg border border-line" />
-          <div className="absolute -bottom-3 left-8 h-10 w-10 rounded-full bg-herb" />
-          <div className="absolute right-10 top-0 h-16 w-28 rounded-b-xl bg-straw" />
+        <div className="relative min-h-72 rounded-xl bg-rose/25 p-6">
+          <div className="food-pattern h-full min-h-64 rounded-xl border border-line" />
+          <div className="absolute -bottom-4 left-4 h-12 w-12 rounded-full bg-herb" />
+          <div className="absolute right-16 top-0 h-16 w-32 rounded-b-xl bg-straw" />
+          <span className="absolute right-9 top-10 h-3 w-3 rounded-full bg-cream-card" />
         </div>
       </section>
 
-      <section id="como-funciona" className="grid gap-3 border-b border-line bg-vanilla px-5 py-5 sm:grid-cols-3 sm:px-8">
+      <section id="como-funciona" className="grid gap-5 rounded-b-lg border-b border-line bg-vanilla px-6 py-7 sm:grid-cols-3 sm:px-8">
         {[
           ['1', 'Escolha o plano', 'Semanal, quinzenal ou mensal.'],
           ['2', 'Monte o cardápio', 'Pratos reais, tudo sem mistério.'],
           ['3', 'Receba em casa', 'Congelada, pronta para aquecer.'],
         ].map(([numero, titulo, texto]) => (
-          <div key={numero} className="flex gap-3">
-            <span className="font-display text-2xl text-paprika">{numero}</span>
+          <div key={numero}>
+            <span className={`font-display text-3xl ${numero === '2' ? 'text-cocoa' : 'text-paprika'}`}>{numero}</span>
             <div>
-              <h2 className="text-sm font-semibold text-ink">{titulo}</h2>
+              <h2 className="mt-1 text-xs font-bold text-ink">{titulo}</h2>
               <p className="mt-1 text-xs text-ink-soft">{texto}</p>
             </div>
           </div>
         ))}
       </section>
 
-      <section id="cardapio-semana" className="py-8">
+      <section id="cardapio-semana" className="mt-6 rounded-lg bg-herb-light/50 px-5 py-7 sm:px-8">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="font-display text-3xl text-ink">Cardápio da semana</h2>
