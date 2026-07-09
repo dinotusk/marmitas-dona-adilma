@@ -191,10 +191,42 @@ router.patch('/:id/pagamento', requireAdmin, async (req, res) => {
     return res.status(400).json({ erro: 'Status de pagamento inválido' });
   }
 
-  const pedido = await prisma.pedido.update({
+  const pedidoAtual = await prisma.pedido.findUnique({
     where: { id: req.params.id },
-    data: { statusPagamento: parsed.data.statusPagamento },
-    include: { itens: { include: { itemCardapio: true } }, cliente: true },
+    include: { itens: true },
+  });
+  if (!pedidoAtual) {
+    return res.status(404).json({ erro: 'Pedido não encontrado' });
+  }
+
+  const novoStatus = parsed.data.statusPagamento;
+  const eraCancelado = pedidoAtual.statusPagamento === 'CANCELADO';
+  const vaiCancelar = novoStatus === 'CANCELADO';
+
+  const pedido = await prisma.$transaction(async (tx) => {
+    // Cancelar um pedido devolve o estoque reservado na criação; reativar
+    // um pedido cancelado (voltar pra PENDENTE/PAGO) reserva o estoque de novo.
+    if (vaiCancelar && !eraCancelado) {
+      for (const item of pedidoAtual.itens) {
+        await tx.itemCardapio.update({
+          where: { id: item.itemCardapioId },
+          data: { qtdDisponivel: { increment: item.quantidade } },
+        });
+      }
+    } else if (!vaiCancelar && eraCancelado) {
+      for (const item of pedidoAtual.itens) {
+        await tx.itemCardapio.update({
+          where: { id: item.itemCardapioId },
+          data: { qtdDisponivel: { decrement: item.quantidade } },
+        });
+      }
+    }
+
+    return tx.pedido.update({
+      where: { id: req.params.id },
+      data: { statusPagamento: novoStatus },
+      include: { itens: { include: { itemCardapio: true } }, cliente: true },
+    });
   });
 
   res.json(pedido);
