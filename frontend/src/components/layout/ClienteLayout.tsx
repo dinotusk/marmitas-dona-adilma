@@ -14,8 +14,8 @@ export function ClienteLayout({ children }: { children: ReactNode }) {
               DA
             </span>
             <span>
-              <span className="block font-display text-xl leading-none text-ink">Sabor de Casa</span>
-              <span className="mt-1 hidden text-xs text-ink-soft sm:block">Marmitas da Dona Adilma</span>
+              <span className="block font-display text-xl leading-none text-ink">Dona Adilma</span>
+              <span className="mt-1 block text-xs text-ink-soft">Sabor de Casa</span>
             </span>
           </Link>
 
