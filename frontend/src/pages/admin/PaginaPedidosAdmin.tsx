@@ -125,8 +125,8 @@ export function PaginaPedidosAdmin() {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="hidden rounded-xl bg-cocoa px-6 py-6 text-vanilla lg:block">
+    <div className="space-y-4">
+      <section className="hidden rounded-xl bg-cocoa px-6 py-5 text-vanilla lg:block">
         <p className="text-xs text-vanilla/60">Marmitas dona Adilma</p>
         <h1 className="mt-1 font-display text-4xl">Bom dia, chef</h1>
         <p className="mt-1 text-sm text-vanilla/60">Pedidos, produção e pagamentos em uma visão única.</p>
@@ -134,31 +134,32 @@ export function PaginaPedidosAdmin() {
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
-          ['Pendentes', String(resumo.pendentes), 'bg-herb-light text-herb-dark'],
-          ['Em produção', String(resumo.marmitas), 'bg-vanilla text-cocoa'],
-          ['Prontas hoje', String(totalPedidos), 'bg-rose/70 text-paprika-dark'],
-          ['Receita hoje', formatarMoeda(resumo.receita), 'bg-cocoa text-vanilla'],
-        ].map(([titulo, valor, classe]) => (
-          <div key={titulo} className={`rounded-lg border border-line p-4 ${classe}`}>
-            <p className="text-xs font-bold">{titulo}</p>
-            <p className="mt-2 font-display text-3xl leading-none">{valor}</p>
+          ['Pedidos', String(totalPedidos), 'Total no filtro atual', 'bg-herb-light text-herb-dark'],
+          ['Em produção', String(resumo.pendentes), 'Ainda não entregues', 'bg-vanilla text-cocoa'],
+          ['Marmitas', String(resumo.marmitas), 'Itens nesta página', 'bg-rose/70 text-paprika-dark'],
+          ['Receita', formatarMoeda(resumo.receita), 'Pedidos carregados', 'bg-cream-card text-herb-dark'],
+        ].map(([titulo, valor, detalhe, classe]) => (
+          <div key={titulo} className={`flex h-28 flex-col justify-between rounded-xl border border-line p-4 ${classe}`}>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-current/75">{titulo}</p>
+            <p className="font-display text-3xl leading-none tracking-normal">{valor}</p>
+            <p className="truncate text-xs text-current/65">{detalhe}</p>
           </div>
         ))}
       </section>
 
-      <Card className="bg-vanilla">
+      <Card className="bg-vanilla p-3 sm:p-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
           <input
             value={buscaInput}
             onChange={(e) => setBuscaInput(e.target.value)}
             placeholder="Buscar por nome ou telefone..."
-            className="w-full rounded-lg border border-line bg-cream-card px-3.5 py-2.5 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
+            className="h-11 w-full rounded-lg border border-line bg-cream-card px-3.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
           />
 
           <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
             <button
               onClick={() => setFiltro('TODOS')}
-              className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-bold ${
+              className={`flex h-10 shrink-0 items-center rounded-lg border px-4 text-sm font-bold ${
                 filtro === 'TODOS' ? 'border-herb bg-herb text-cream-card' : 'border-line bg-cream-card text-ink-soft'
               }`}
             >
@@ -168,7 +169,7 @@ export function PaginaPedidosAdmin() {
               <button
                 key={status}
                 onClick={() => setFiltro(status)}
-                className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-bold ${
+                className={`flex h-10 shrink-0 items-center rounded-lg border px-4 text-sm font-bold ${
                   filtro === status ? 'border-herb bg-herb text-cream-card' : 'border-line bg-cream-card text-ink-soft'
                 }`}
               >
@@ -206,11 +207,11 @@ export function PaginaPedidosAdmin() {
 
           {pedidos.map((pedido) => (
             <Card key={pedido.id} className="p-0">
-              <div className="grid gap-4 p-4 lg:grid-cols-[1fr_auto]">
+              <div className="grid gap-3 p-3 lg:grid-cols-[1fr_auto] lg:p-4">
                 <div>
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <h3 className="font-display text-xl text-ink">{pedido.cliente.nome}</h3>
+                      <h3 className="font-display text-xl leading-tight text-ink">{pedido.cliente.nome}</h3>
                       <p className="mt-1 font-mono text-xs text-ink-soft">#{pedido.id.slice(0, 8)} · {new Date(pedido.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                     <div className="flex gap-2">
@@ -219,7 +220,7 @@ export function PaginaPedidosAdmin() {
                     </div>
                   </div>
 
-                  <div className="mt-3 space-y-1 text-sm text-ink-soft">
+                  <div className="mt-3 space-y-1 text-sm leading-5 text-ink-soft">
                     <p>{pedido.cliente.telefone}</p>
                     <p>{pedido.cliente.endereco}</p>
                     {pedido.observacoes && <p>Obs: {pedido.observacoes}</p>}
@@ -227,7 +228,7 @@ export function PaginaPedidosAdmin() {
 
                   <div className="mt-3 grid gap-2">
                     {pedido.itens.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between rounded-lg bg-parchment px-3 py-2 text-sm">
+                    <div key={item.id} className="flex items-center justify-between rounded-lg bg-parchment px-3 py-2 text-sm">
                         <span className="font-semibold text-ink">{item.quantidade}x {item.itemCardapio.sabor}</span>
                         <button type="button" onClick={() => alternarStatusUnidade(pedido.id, item)}>
                           <StatusUnidadeBadge status={item.statusUnidade} />
@@ -237,7 +238,7 @@ export function PaginaPedidosAdmin() {
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-vanilla p-4 lg:w-64">
+                <div className="rounded-lg bg-vanilla p-3 lg:w-64 lg:p-4">
                   <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Total</p>
                   <p className="mt-1 font-mono text-2xl font-bold text-herb-dark">{formatarMoeda(pedido.valorTotal)}</p>
                   <p className="mt-1 text-xs text-ink-soft">Pagamento: {FORMA_PAGAMENTO_LABEL[pedido.formaPagamento] ?? pedido.formaPagamento}</p>

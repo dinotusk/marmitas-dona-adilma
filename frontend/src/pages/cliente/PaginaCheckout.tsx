@@ -10,7 +10,7 @@ import type { FormaPagamento, Pedido } from '@/types/domain';
 
 const OPCOES_PAGAMENTO: { valor: FormaPagamento; label: string }[] = [
   { valor: 'PIX', label: 'Pix' },
-  { valor: 'CARTAO', label: 'Cartão de crédito' },
+  { valor: 'CARTAO', label: 'Cartão' },
   { valor: 'DINHEIRO', label: 'Dinheiro' },
 ];
 
@@ -61,88 +61,86 @@ export function PaginaCheckout() {
 
   return (
     <ClienteLayout>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-md overflow-hidden rounded-2xl border border-line bg-vanilla shadow-sm">
-        <header className="bg-herb px-5 pb-5 pt-6 text-cream-card">
-          <button type="button" onClick={() => navigate('/')} className="mb-4 text-xl leading-none" aria-label="Voltar">
-            ←
-          </button>
-          <h1 className="font-display text-2xl">Finalizar pedido</h1>
-        </header>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-md space-y-5">
+        <section className="rounded-xl border border-line bg-cream-card p-5 shadow-[0_1px_0_rgba(36,27,15,0.04)]">
+          <div className="mb-5">
+            <h1 className="font-display text-3xl leading-none text-ink">Finalizar pedido</h1>
+            <p className="mt-2 text-sm text-ink-soft">Confirme seus dados antes de enviar.</p>
+          </div>
 
-        <div className="space-y-5 px-4 py-5">
-          <section>
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">Seu pedido</h2>
-            <div className="space-y-2">
-              {itens.map((i) => (
-                <div key={i.itemCardapio.id} className="grid grid-cols-[54px_1fr_auto] items-center gap-3 rounded-lg bg-cream-card p-2.5">
-                  <div className="food-pattern h-12 rounded-md border border-line" />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-ink">{i.itemCardapio.sabor}</p>
-                    <p className="mt-1 font-mono text-xs text-ink-soft">{formatarMoeda(i.itemCardapio.preco)}</p>
-                  </div>
-                  <span className="rounded-md bg-parchment px-2 py-1 font-mono text-xs text-ink-soft">{i.quantidade}x</span>
-                </div>
-              ))}
-            </div>
-          </section>
+          <div className="grid gap-3">
+            <Input id="nome" label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+            <Input id="telefone" label="Telefone" type="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} minLength={8} required />
+            <Input id="endereco" label="Endereço" value={endereco} onChange={(e) => setEndereco(e.target.value)} required />
+          </div>
 
-          <section>
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">Entrega</h2>
-            <div className="rounded-lg bg-cream-card p-3">
-              <Input id="nome" label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-              <div className="mt-3">
-                <Input id="telefone" label="Telefone" type="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} minLength={8} required />
-              </div>
-              <div className="mt-3">
-                <Input id="endereco" label="Endereço" value={endereco} onChange={(e) => setEndereco(e.target.value)} required />
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">Pagamento</h2>
-            <div className="space-y-2">
+          <div className="mt-6">
+            <h2 className="mb-3 text-sm font-bold text-ink-soft">Forma de pagamento</h2>
+            <div className="grid grid-cols-3 gap-2">
               {OPCOES_PAGAMENTO.map((op) => (
                 <button
                   type="button"
                   key={op.valor}
                   onClick={() => setFormaPagamento(op.valor)}
-                  className={`flex w-full items-center justify-between rounded-lg border bg-cream-card px-3 py-3 text-left text-sm font-semibold ${
-                    formaPagamento === op.valor ? 'border-herb text-ink ring-1 ring-herb/30' : 'border-line text-ink-soft'
+                  className={`h-14 rounded-lg border text-center text-base font-medium transition-colors ${
+                    formaPagamento === op.valor
+                      ? 'border-herb bg-herb/10 text-herb-dark'
+                      : 'border-line bg-cream-card text-ink-soft'
                   }`}
                 >
-                  <span>{op.label}</span>
-                  <span className={`h-3 w-3 rounded-full border ${formaPagamento === op.valor ? 'border-herb bg-herb' : 'border-line'}`} />
+                  {op.label}
                 </button>
               ))}
             </div>
-          </section>
+          </div>
 
-          <textarea
-            value={observacoes}
-            onChange={(e) => setObservacoes(e.target.value)}
-            rows={3}
-            className="w-full resize-none rounded-lg border border-line bg-cream-card px-3.5 py-2.5 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
-            placeholder="Observações (opcional)"
-          />
+          <div className="mt-6">
+            <label htmlFor="observacoes" className="mb-3 block text-sm font-bold text-ink-soft">
+              Observações (opcional)
+            </label>
+            <textarea
+              id="observacoes"
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              rows={5}
+              className="min-h-36 w-full resize-none rounded-lg border border-line bg-cream-card px-4 py-3 text-base text-ink placeholder:text-ink-soft/55 focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
+              placeholder="Ex: sem cebola, tocar o interfone..."
+            />
+          </div>
 
-          <section className="rounded-lg bg-cream-card p-4">
-            <div className="flex items-center justify-between text-sm text-ink-soft">
+          {erro && <p className="mt-4 rounded-lg bg-paprika/10 px-3 py-2 text-sm text-paprika-dark">{erro}</p>}
+
+          <Button type="submit" disabled={enviando} className="mt-6 h-14 w-full rounded-lg text-base">
+            {enviando ? 'Enviando...' : `Confirmar pedido - ${formatarMoeda(valorTotal)}`}
+          </Button>
+        </section>
+
+        <section className="rounded-xl border border-line bg-vanilla p-5 shadow-[0_1px_0_rgba(36,27,15,0.04)]">
+          <h2 className="font-display text-4xl leading-none text-ink">Seu pedido</h2>
+
+          <div className="mt-5 space-y-3">
+            {itens.map((i) => (
+              <div key={i.itemCardapio.id} className="flex items-center justify-between gap-4 rounded-lg bg-cream-card p-4">
+                <div className="min-w-0">
+                  <p className="truncate text-base font-bold text-ink">{i.itemCardapio.sabor}</p>
+                  <p className="mt-2 text-sm text-ink-soft">{i.quantidade} unidade(s)</p>
+                </div>
+                <span className="font-mono text-base text-ink-soft">{formatarMoeda(Number(i.itemCardapio.preco) * i.quantidade)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 border-t border-line pt-4">
+            <div className="flex items-center justify-between text-base text-ink-soft">
               <span>Subtotal</span>
               <span className="font-mono">{formatarMoeda(valorTotal)}</span>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
-              <span className="font-bold text-ink">Total</span>
-              <span className="font-mono text-lg font-bold text-ink">{formatarMoeda(valorTotal)}</span>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-lg font-bold text-ink">Total</span>
+              <span className="font-mono text-2xl font-bold text-herb-dark">{formatarMoeda(valorTotal)}</span>
             </div>
-          </section>
-
-          {erro && <p className="rounded-lg bg-paprika/10 px-3 py-2 text-sm text-paprika-dark">{erro}</p>}
-
-          <Button type="submit" variant="secondary" disabled={enviando} className="w-full">
-            {enviando ? 'Enviando...' : `Confirmar pedido - ${formatarMoeda(valorTotal)}`}
-          </Button>
-        </div>
+          </div>
+        </section>
       </form>
     </ClienteLayout>
   );

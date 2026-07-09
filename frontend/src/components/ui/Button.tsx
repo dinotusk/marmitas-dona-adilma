@@ -14,7 +14,7 @@ const VARIANTES = {
 export function Button({ variant = 'primary', className = '', children, ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-sm font-bold transition-colors
         disabled:opacity-50 disabled:cursor-not-allowed
         focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
         ${VARIANTES[variant]} ${className}`}

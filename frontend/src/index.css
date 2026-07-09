@@ -3,21 +3,21 @@
 
 /* Railway deploy marker: frontend visual refresh */
 @theme {
-  --color-parchment: #FAF9F6;
-  --color-parchment-dark: #F3E8CD;
-  --color-vanilla: #FFF4D8;
-  --color-ink: #201E1B;
-  --color-ink-soft: #6D6A64;
-  --color-cocoa: #221A0F;
-  --color-herb: #2F6B4F;
-  --color-herb-light: #D9EFD5;
-  --color-herb-dark: #24523C;
-  --color-paprika: #F1761D;
-  --color-paprika-dark: #C55317;
-  --color-straw: #F5D77B;
-  --color-rose: #F7B3A7;
-  --color-cream-card: #FFFFFF;
-  --color-line: #E8DFC8;
+  --color-parchment: #FBF8EF;
+  --color-parchment-dark: #F1E6CE;
+  --color-vanilla: #FFF3D6;
+  --color-ink: #211B12;
+  --color-ink-soft: #706B61;
+  --color-cocoa: #241B0F;
+  --color-herb: #2D774F;
+  --color-herb-light: #DDF2D8;
+  --color-herb-dark: #245B42;
+  --color-paprika: #EA6A1A;
+  --color-paprika-dark: #BD4D17;
+  --color-straw: #F2D27A;
+  --color-rose: #F5C8C0;
+  --color-cream-card: #FFFEFA;
+  --color-line: #E9DFC8;
 
   --font-display: 'Fraunces', serif;
   --font-body: 'Work Sans', sans-serif;
@@ -50,8 +50,8 @@ textarea {
 .badge-pill {
   border: none;
   font-family: var(--font-mono);
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 

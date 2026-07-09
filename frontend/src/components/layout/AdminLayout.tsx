@@ -49,25 +49,24 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 bg-cocoa px-4 pb-4 pt-5 text-vanilla lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-line bg-parchment px-4 py-4 text-ink lg:hidden">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs text-vanilla/60">Marmitas dona Adilma</span>
-              <span className="block font-display text-2xl leading-tight">Bom dia, chef</span>
-              <span className="text-xs text-vanilla/60">{admin?.nome}</span>
+              <span className="block font-display text-3xl leading-none">Marmitas</span>
+              <span className="mt-2 block text-sm text-ink-soft">Administradora</span>
             </div>
-            <Button variant="secondary" onClick={logout} className="px-3 py-2 text-xs">
+            <Button variant="ghost" onClick={logout} className="h-11 rounded-lg px-6 text-base">
               Sair
             </Button>
           </div>
-          <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
+          <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `shrink-0 rounded-lg px-3 py-2 text-xs font-semibold ${
-                    isActive ? 'bg-herb text-cream-card' : 'bg-vanilla/10 text-vanilla/70'
+                  `flex h-10 shrink-0 items-center rounded-lg px-4 text-sm font-bold ${
+                    isActive ? 'bg-herb text-cream-card' : 'bg-cream-card text-ink-soft'
                   }`
                 }
               >
