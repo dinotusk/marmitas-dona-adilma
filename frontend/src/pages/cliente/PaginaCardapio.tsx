@@ -17,7 +17,7 @@ function ItemCard({ item, quantidade, onChange }: { item: ItemCardapio; quantida
   const limiteQtd = item.controlaEstoque ? item.qtdDisponivel : 99;
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden p-0">
+    <Card className="flex h-full min-w-0 flex-col overflow-hidden p-0">
       <div className="food-pattern relative h-32 border-b border-line">
         <span className="absolute left-3 top-3 rounded-full bg-cream-card px-2.5 py-1 font-mono text-[10px] font-medium uppercase text-herb-dark">
           {semEstoque ? 'Esgotado' : 'Disponível'}
@@ -28,8 +28,8 @@ function ItemCard({ item, quantidade, onChange }: { item: ItemCardapio; quantida
         <h2 className="font-display text-xl leading-tight text-ink">{item.sabor}</h2>
         {item.descricao && <p className="mt-2 line-clamp-2 text-sm text-ink-soft">{item.descricao}</p>}
 
-        <div className="mt-4 flex items-end justify-between gap-3">
-          <div>
+        <div className="mt-auto pt-4">
+          <div className="mb-3">
             <span className="font-mono text-base font-semibold text-herb-dark">{formatarMoeda(item.preco)}</span>
             {item.controlaEstoque && !semEstoque && (
               <p className="mt-1 text-xs text-ink-soft">{item.qtdDisponivel} unidades</p>
@@ -37,27 +37,27 @@ function ItemCard({ item, quantidade, onChange }: { item: ItemCardapio; quantida
           </div>
 
           {semEstoque ? (
-            <span className="rounded-lg border border-line px-3 py-2 text-xs font-semibold text-ink-soft">Indisponível</span>
+            <span className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-line px-3 text-xs font-semibold text-ink-soft">Indisponível</span>
           ) : quantidade === 0 ? (
-            <Button variant="ghost" className="px-3 py-2" onClick={() => onChange(1)}>
+            <Button variant="ghost" className="h-10 w-full px-3 text-xs" onClick={() => onChange(1)}>
               Adicionar
             </Button>
           ) : (
-            <div className="grid grid-cols-[34px_28px_34px] items-center rounded-lg border border-line bg-parchment">
+            <div className="grid h-10 w-full grid-cols-[1fr_38px_1fr] items-center overflow-hidden rounded-lg border border-line bg-parchment">
               <button
                 type="button"
                 aria-label="Diminuir quantidade"
-                className="h-9 rounded-l-lg text-lg font-semibold hover:bg-vanilla"
+                className="h-10 text-lg font-semibold hover:bg-vanilla"
                 onClick={() => onChange(quantidade - 1)}
               >
                 -
               </button>
-              <span className="font-mono text-sm text-center">{quantidade}</span>
+              <span className="text-center font-mono text-sm">{quantidade}</span>
               <button
                 type="button"
                 aria-label="Aumentar quantidade"
                 disabled={quantidade >= limiteQtd}
-                className="h-9 rounded-r-lg text-lg font-semibold hover:bg-vanilla disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-10 text-lg font-semibold hover:bg-vanilla disabled:cursor-not-allowed disabled:opacity-40"
                 onClick={() => onChange(quantidade + 1)}
               >
                 +
