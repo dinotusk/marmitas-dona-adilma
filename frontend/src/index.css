@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+/*
+  DESIGN TOKENS — Marmitas da Dona Dilma
+  Direção: moderno e minimalista, mas ainda caseiro — fundo quase-branco,
+  cards com borda fina em vez de sombra pesada, um único par de acentos
+  (verde-erva + terracota) usado com moderação, bastante espaço em branco.
+*/
+@theme {
+  /* Cores */
+  --color-parchment: #FAF9F6;
+  --color-parchment-dark: #F0EEE9;
+  --color-ink: #201E1B;
+  --color-ink-soft: #6D6A64;
+  --color-herb: #2F6B4F;
+  --color-herb-dark: #24523C;
+  --color-paprika: #C1502E;
+  --color-paprika-dark: #9A3D22;
+  --color-cream-card: #FFFFFF;
+  --color-line: #E7E5E0;
+
+  /* Tipografia */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  background-color: var(--color-parchment);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Elemento de assinatura: pill de status com fundo tintado, sem ornamentação */
+.badge-pill {
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

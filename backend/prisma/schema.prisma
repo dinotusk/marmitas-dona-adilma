@@ -1,0 +1,108 @@
+// Schema do banco de dados - Sistema de Pedidos de Marmitas Congeladas
+// Modelagem baseada nas HU001-HU004 do documento de produto
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- ADMIN (HU002 - acesso restrito, RN001) ----------
+model Admin {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  createdAt DateTime @default(now())
+}
+
+// ---------- CLIENTE (HU001, HU004 - histórico) ----------
+model Cliente {
+  id        String   @id @default(uuid())
+  nome      String
+  telefone  String   @unique
+  endereco  String
+  createdAt DateTime @default(now())
+
+  pedidos Pedido[]
+}
+
+// ---------- CARDÁPIO (HU002) ----------
+model Cardapio {
+  id            String   @id @default(uuid())
+  semanaInicio  DateTime
+  semanaFim     DateTime
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  itens ItemCardapio[]
+}
+
+model ItemCardapio {
+  id             String   @id @default(uuid())
+  cardapioId     String
+  sabor          String
+  descricao      String?
+  preco          Decimal  @db.Decimal(10, 2)
+  qtdDisponivel  Int
+  ativo          Boolean  @default(true)
+
+  cardapio    Cardapio     @relation(fields: [cardapioId], references: [id])
+  itensPedido ItemPedido[]
+}
+
+// ---------- PEDIDO (HU001, HU002, HU003) ----------
+enum StatusPedido {
+  RECEBIDO
+  EM_PREPARACAO
+  PRONTO
+  SAIU_ENTREGA
+  ENTREGUE
+}
+
+enum FormaPagamento {
+  PIX
+  CARTAO
+  DINHEIRO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  CANCELADO
+}
+
+model Pedido {
+  id              String          @id @default(uuid())
+  clienteId       String
+  status          StatusPedido    @default(RECEBIDO)
+  formaPagamento  FormaPagamento
+  statusPagamento StatusPagamento @default(PENDENTE)
+  valorTotal      Decimal         @db.Decimal(10, 2)
+  observacoes     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  cliente Cliente      @relation(fields: [clienteId], references: [id])
+  itens   ItemPedido[]
+}
+
+// ---------- ITEM DO PEDIDO (controle unitário - RN005) ----------
+enum StatusUnidade {
+  PREPARANDO
+  PRONTA
+}
+
+model ItemPedido {
+  id             String        @id @default(uuid())
+  pedidoId       String
+  itemCardapioId String
+  quantidade     Int
+  statusUnidade  StatusUnidade @default(PREPARANDO)
+
+  pedido       Pedido       @relation(fields: [pedidoId], references: [id])
+  itemCardapio ItemCardapio @relation(fields: [itemCardapioId], references: [id])
+}
