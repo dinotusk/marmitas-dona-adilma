@@ -82,7 +82,8 @@ export function PaginaPedidosAdmin() {
     const marmitas = pedidos.reduce((total, pedido) => total + pedido.itens.reduce((sub, item) => sub + item.quantidade, 0), 0);
     const receita = pedidos.reduce((total, pedido) => total + Number(pedido.valorTotal), 0);
     const pendentes = pedidos.filter((pedido) => pedido.status !== 'ENTREGUE').length;
-    return { marmitas, receita, pendentes };
+    const ticketMedio = pedidos.length ? receita / pedidos.length : 0;
+    return { marmitas, receita, pendentes, ticketMedio };
   }, [pedidos]);
 
   async function atualizarStatus(pedidoId: string, status: StatusPedido) {
@@ -124,44 +125,41 @@ export function PaginaPedidosAdmin() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <span className="badge-pill rounded-full bg-paprika px-3 py-1 text-[10px] text-cream-card">Hoje</span>
-          <h1 className="mt-3 font-display text-4xl text-ink">Bom dia, chef</h1>
-          <p className="mt-1 text-sm text-ink-soft">Pedidos, produção e pagamentos em uma visão única.</p>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <section className="hidden rounded-xl bg-cocoa px-6 py-6 text-vanilla lg:block">
+        <p className="text-xs text-vanilla/60">Marmitas dona Adilma</p>
+        <h1 className="mt-1 font-display text-4xl">Bom dia, chef</h1>
+        <p className="mt-1 text-sm text-vanilla/60">Pedidos, produção e pagamentos em uma visão única.</p>
+      </section>
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
-          ['Pedidos', String(totalPedidos), 'Total no filtro atual', 'bg-herb-light'],
-          ['Em produção', String(resumo.pendentes), 'Ainda não entregues', 'bg-vanilla'],
-          ['Marmitas', String(resumo.marmitas), 'Itens nesta página', 'bg-rose/60'],
-          ['Receita', formatarMoeda(resumo.receita), 'Pedidos carregados', 'bg-cocoa text-vanilla'],
-        ].map(([titulo, valor, detalhe, classe]) => (
-          <Card key={titulo} className={`${classe} min-h-28`}>
-            <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{titulo}</p>
-            <p className="mt-2 font-display text-3xl">{valor}</p>
-            <p className="mt-1 text-xs opacity-70">{detalhe}</p>
-          </Card>
+          ['Pendentes', String(resumo.pendentes), 'bg-herb-light text-herb-dark'],
+          ['Em produção', String(resumo.marmitas), 'bg-vanilla text-cocoa'],
+          ['Prontas hoje', String(totalPedidos), 'bg-rose/70 text-paprika-dark'],
+          ['Receita hoje', formatarMoeda(resumo.receita), 'bg-cocoa text-vanilla'],
+        ].map(([titulo, valor, classe]) => (
+          <div key={titulo} className={`rounded-lg border border-line p-4 ${classe}`}>
+            <p className="text-xs font-bold">{titulo}</p>
+            <p className="mt-2 font-display text-3xl leading-none">{valor}</p>
+          </div>
         ))}
-      </div>
+      </section>
 
-      <Card className="mb-5">
+      <Card className="bg-vanilla">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
           <input
             value={buscaInput}
             onChange={(e) => setBuscaInput(e.target.value)}
-            placeholder="Buscar por nome ou telefone do cliente..."
+            placeholder="Buscar por nome ou telefone..."
             className="w-full rounded-lg border border-line bg-cream-card px-3.5 py-2.5 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
           />
 
           <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
             <button
               onClick={() => setFiltro('TODOS')}
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-semibold ${
-                filtro === 'TODOS' ? 'border-herb bg-herb text-cream-card' : 'border-line text-ink-soft hover:bg-vanilla'
+              className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-bold ${
+                filtro === 'TODOS' ? 'border-herb bg-herb text-cream-card' : 'border-line bg-cream-card text-ink-soft'
               }`}
             >
               Todos
@@ -170,8 +168,8 @@ export function PaginaPedidosAdmin() {
               <button
                 key={status}
                 onClick={() => setFiltro(status)}
-                className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-semibold ${
-                  filtro === status ? 'border-herb bg-herb text-cream-card' : 'border-line text-ink-soft hover:bg-vanilla'
+                className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-bold ${
+                  filtro === status ? 'border-herb bg-herb text-cream-card' : 'border-line bg-cream-card text-ink-soft'
                 }`}
               >
                 {LABELS_PEDIDO[status]}
@@ -188,7 +186,7 @@ export function PaginaPedidosAdmin() {
       )}
 
       {erro && (
-        <Card className="mb-4 border-paprika/40">
+        <Card className="border-paprika/40">
           <p className="text-sm text-paprika-dark">{erro}</p>
         </Card>
       )}
@@ -199,80 +197,86 @@ export function PaginaPedidosAdmin() {
         </Card>
       )}
 
-      <div className="grid gap-4">
-        {pedidos.map((pedido) => (
-          <Card key={pedido.id} className="overflow-hidden">
-            <div className="flex flex-wrap justify-between gap-3 border-b border-line pb-4">
-              <div>
-                <p className="font-mono text-sm text-ink">#{pedido.id.slice(0, 8)}</p>
-                <h2 className="mt-1 font-display text-2xl text-ink">{pedido.cliente.nome}</h2>
-                <p className="mt-1 text-xs text-ink-soft">{new Date(pedido.createdAt).toLocaleString('pt-BR')}</p>
-              </div>
-              <div className="flex flex-wrap items-start gap-2">
-                <StatusPagamentoBadge status={pedido.statusPagamento} />
-                <StatusPedidoBadge status={pedido.status} />
-              </div>
-            </div>
+      <section className="grid gap-5 xl:grid-cols-[1fr_320px]">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-2xl text-ink">Pedidos recentes</h2>
+            <span className="text-xs font-bold text-herb-dark">{totalPedidos} no filtro</span>
+          </div>
 
-            <div className="grid gap-4 py-4 lg:grid-cols-[1fr_260px]">
-              <div>
-                <div className="mb-4 space-y-1 text-sm text-ink-soft">
-                  <p>{pedido.cliente.telefone}</p>
-                  <p>{pedido.cliente.endereco}</p>
-                  <p>Pagamento: {FORMA_PAGAMENTO_LABEL[pedido.formaPagamento] ?? pedido.formaPagamento}</p>
-                  {pedido.observacoes && <p>Obs: {pedido.observacoes}</p>}
-                </div>
-
-                <div className="grid gap-2">
-                  {pedido.itens.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg bg-parchment p-3 text-sm">
-                      <span className="font-semibold text-ink">
-                        {item.quantidade}x {item.itemCardapio.sabor}
-                      </span>
-                      <button type="button" onClick={() => alternarStatusUnidade(pedido.id, item)}>
-                        <StatusUnidadeBadge status={item.statusUnidade} />
-                      </button>
+          {pedidos.map((pedido) => (
+            <Card key={pedido.id} className="p-0">
+              <div className="grid gap-4 p-4 lg:grid-cols-[1fr_auto]">
+                <div>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-display text-xl text-ink">{pedido.cliente.nome}</h3>
+                      <p className="mt-1 font-mono text-xs text-ink-soft">#{pedido.id.slice(0, 8)} · {new Date(pedido.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
-                  ))}
+                    <div className="flex gap-2">
+                      <StatusPagamentoBadge status={pedido.statusPagamento} />
+                      <StatusPedidoBadge status={pedido.status} />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-1 text-sm text-ink-soft">
+                    <p>{pedido.cliente.telefone}</p>
+                    <p>{pedido.cliente.endereco}</p>
+                    {pedido.observacoes && <p>Obs: {pedido.observacoes}</p>}
+                  </div>
+
+                  <div className="mt-3 grid gap-2">
+                    {pedido.itens.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between rounded-lg bg-parchment px-3 py-2 text-sm">
+                        <span className="font-semibold text-ink">{item.quantidade}x {item.itemCardapio.sabor}</span>
+                        <button type="button" onClick={() => alternarStatusUnidade(pedido.id, item)}>
+                          <StatusUnidadeBadge status={item.statusUnidade} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-vanilla p-4 lg:w-64">
+                  <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Total</p>
+                  <p className="mt-1 font-mono text-2xl font-bold text-herb-dark">{formatarMoeda(pedido.valorTotal)}</p>
+                  <p className="mt-1 text-xs text-ink-soft">Pagamento: {FORMA_PAGAMENTO_LABEL[pedido.formaPagamento] ?? pedido.formaPagamento}</p>
+
+                  <div className="mt-4 grid gap-2">
+                    <select
+                      value={pedido.statusPagamento}
+                      onChange={(e) => atualizarStatusPagamento(pedido.id, e.target.value as StatusPagamento)}
+                      className="rounded-lg border border-line bg-cream-card px-3 py-2 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
+                    >
+                      {STATUS_PAGAMENTO_OPCOES.map((status) => (
+                        <option key={status} value={status}>{LABELS_PAGAMENTO[status]}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={pedido.status}
+                      onChange={(e) => atualizarStatus(pedido.id, e.target.value as StatusPedido)}
+                      className="rounded-lg border border-line bg-cream-card px-3 py-2 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
+                    >
+                      {STATUS_OPCOES.map((status) => (
+                        <option key={status} value={status}>{LABELS_PEDIDO[status]}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
+            </Card>
+          ))}
+        </div>
 
-              <div className="rounded-lg bg-vanilla p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Total</p>
-                <p className="mt-1 font-mono text-2xl font-semibold text-herb-dark">{formatarMoeda(pedido.valorTotal)}</p>
-
-                <div className="mt-4 grid gap-2">
-                  <select
-                    value={pedido.statusPagamento}
-                    onChange={(e) => atualizarStatusPagamento(pedido.id, e.target.value as StatusPagamento)}
-                    className="rounded-lg border border-line bg-cream-card px-3 py-2 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
-                  >
-                    {STATUS_PAGAMENTO_OPCOES.map((status) => (
-                      <option key={status} value={status}>
-                        {LABELS_PAGAMENTO[status]}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={pedido.status}
-                    onChange={(e) => atualizarStatus(pedido.id, e.target.value as StatusPedido)}
-                    className="rounded-lg border border-line bg-cream-card px-3 py-2 text-sm text-ink focus:border-herb focus:outline-none focus:ring-2 focus:ring-herb/40"
-                  >
-                    {STATUS_OPCOES.map((status) => (
-                      <option key={status} value={status}>
-                        {LABELS_PEDIDO[status]}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+        <aside className="rounded-xl bg-herb p-5 text-cream-card xl:sticky xl:top-8 xl:self-start">
+          <p className="text-xs font-bold uppercase tracking-wide text-cream-card/70">Ticket médio</p>
+          <p className="mt-2 font-display text-4xl">{formatarMoeda(resumo.ticketMedio)}</p>
+          <p className="mt-4 text-sm text-cream-card/75">Resumo calculado com os pedidos carregados nesta página.</p>
+        </aside>
+      </section>
 
       {!carregando && totalPaginas > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button
             onClick={() => setPagina((p) => Math.max(1, p - 1))}
             disabled={pagina === 1}
@@ -280,9 +284,7 @@ export function PaginaPedidosAdmin() {
           >
             Anterior
           </button>
-          <span className="text-sm text-ink-soft">
-            Página {pagina} de {totalPaginas}
-          </span>
+          <span className="text-sm text-ink-soft">Página {pagina} de {totalPaginas}</span>
           <button
             onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
             disabled={pagina === totalPaginas}

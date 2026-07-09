@@ -40,24 +40,27 @@ export function PaginaPerfilAdmin() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <span className="badge-pill rounded-full bg-herb/10 px-3 py-1 text-[10px] text-herb-dark">Configurações</span>
-        <h1 className="mt-3 font-display text-4xl text-ink">Meu perfil</h1>
-        <p className="mt-1 text-sm text-ink-soft">Dados da conta administrativa e segurança de acesso.</p>
-      </div>
+    <div className="space-y-5">
+      <section className="hidden rounded-xl bg-cocoa px-6 py-6 text-vanilla lg:block">
+        <p className="text-xs text-vanilla/60">Marmitas dona Adilma</p>
+        <h1 className="mt-1 font-display text-4xl">Configurações</h1>
+        <p className="mt-1 text-sm text-vanilla/60">Conta administrativa e segurança do acesso.</p>
+      </section>
 
-      <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
         <Card className="bg-vanilla">
-          <h2 className="font-display text-2xl text-ink">Conta</h2>
-          <div className="mt-5 space-y-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Nome</p>
-              <p className="mt-1 font-semibold text-ink">{admin?.nome}</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">E-mail</p>
-              <p className="mt-1 text-sm text-ink">{admin?.email}</p>
+          <h2 className="font-display text-2xl text-ink">Dados da conta</h2>
+          <div className="mt-5 rounded-lg bg-cream-card p-4">
+            <div className="food-pattern mb-4 h-16 w-16 rounded-lg border border-line" />
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Nome</p>
+                <p className="mt-1 font-semibold text-ink">{admin?.nome}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">E-mail</p>
+                <p className="mt-1 text-sm text-ink">{admin?.email}</p>
+              </div>
             </div>
           </div>
         </Card>
@@ -67,32 +70,9 @@ export function PaginaPerfilAdmin() {
           <p className="mt-1 text-sm text-ink-soft">Use uma senha com pelo menos 6 caracteres.</p>
 
           <form onSubmit={handleSubmit} className="mt-5 grid max-w-xl gap-4">
-            <Input
-              id="senhaAtual"
-              label="Senha atual"
-              type="password"
-              value={senhaAtual}
-              onChange={(e) => setSenhaAtual(e.target.value)}
-              required
-            />
-            <Input
-              id="novaSenha"
-              label="Nova senha"
-              type="password"
-              value={novaSenha}
-              onChange={(e) => setNovaSenha(e.target.value)}
-              minLength={6}
-              required
-            />
-            <Input
-              id="confirmarSenha"
-              label="Confirmar nova senha"
-              type="password"
-              value={confirmarSenha}
-              onChange={(e) => setConfirmarSenha(e.target.value)}
-              minLength={6}
-              required
-            />
+            <Input id="senhaAtual" label="Senha atual" type="password" value={senhaAtual} onChange={(e) => setSenhaAtual(e.target.value)} required />
+            <Input id="novaSenha" label="Nova senha" type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} minLength={6} required />
+            <Input id="confirmarSenha" label="Confirmar nova senha" type="password" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} minLength={6} required />
 
             {erro && <p className="rounded-lg bg-paprika/10 px-3 py-2 text-sm text-paprika-dark">{erro}</p>}
             {sucesso && <p className="rounded-lg bg-herb/10 px-3 py-2 text-sm text-herb-dark">Senha atualizada com sucesso.</p>}

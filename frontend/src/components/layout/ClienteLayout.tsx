@@ -13,7 +13,7 @@ export function ClienteLayout({ children }: { children: ReactNode }) {
             <span className="flex h-5 w-5 items-center justify-center rounded-full border border-cocoa bg-straw">
               <span className="h-2 w-2 rounded-full bg-herb" />
             </span>
-            <span className="font-display text-lg font-semibold leading-none text-ink">Sabor de Casa</span>
+            <span className="font-display text-lg font-semibold leading-none text-ink">Marmitas dona Adilma</span>
           </Link>
 
           <nav className="flex items-center gap-5 text-xs font-semibold">

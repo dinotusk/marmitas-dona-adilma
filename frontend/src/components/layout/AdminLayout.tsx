@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { to: '/admin/producao', label: 'Produção' },
   { to: '/admin/financeiro', label: 'Financeiro' },
   { to: '/admin/clientes', label: 'Clientes' },
-  { to: '/admin/perfil', label: 'Configurações' },
+  { to: '/admin/perfil', label: 'Config' },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
@@ -17,9 +17,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-parchment text-ink lg:flex">
-      <aside className="hidden w-64 shrink-0 flex-col bg-cocoa text-vanilla lg:flex">
+      <aside className="hidden w-60 shrink-0 flex-col bg-cocoa text-vanilla lg:flex">
         <div className="border-b border-vanilla/10 px-6 py-6">
-          <span className="block font-display text-2xl">Marmitas</span>
+          <span className="block font-display text-2xl">Marmitas dona Adilma</span>
           <span className="mt-1 block text-xs text-vanilla/55">Painel administrativo</span>
         </div>
 
@@ -49,24 +49,25 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 border-b border-line bg-parchment/95 px-4 py-3 backdrop-blur lg:hidden">
+        <header className="sticky top-0 z-30 bg-cocoa px-4 pb-4 pt-5 text-vanilla lg:hidden">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="block font-display text-xl">Marmitas</span>
-              <span className="text-xs text-ink-soft">{admin?.nome}</span>
+              <span className="text-xs text-vanilla/60">Marmitas dona Adilma</span>
+              <span className="block font-display text-2xl leading-tight">Bom dia, chef</span>
+              <span className="text-xs text-vanilla/60">{admin?.nome}</span>
             </div>
-            <Button variant="ghost" onClick={logout} className="px-3 py-2 text-xs">
+            <Button variant="secondary" onClick={logout} className="px-3 py-2 text-xs">
               Sair
             </Button>
           </div>
-          <nav className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
                   `shrink-0 rounded-lg px-3 py-2 text-xs font-semibold ${
-                    isActive ? 'bg-herb text-cream-card' : 'bg-cream-card text-ink-soft'
+                    isActive ? 'bg-herb text-cream-card' : 'bg-vanilla/10 text-vanilla/70'
                   }`
                 }
               >
@@ -76,7 +77,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           </nav>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">{children}</main>
       </div>
     </div>
   );
