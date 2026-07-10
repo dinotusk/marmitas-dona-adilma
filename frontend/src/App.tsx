@@ -10,6 +10,7 @@ import { PaginaCheckout } from '@/pages/cliente/PaginaCheckout';
 import { PaginaAcompanhamento } from '@/pages/cliente/PaginaAcompanhamento';
 import { PaginaLoginCliente } from '@/pages/cliente/PaginaLoginCliente';
 import { PaginaMeusPedidos } from '@/pages/cliente/PaginaMeusPedidos';
+import { PaginaPlanos } from '@/pages/cliente/PaginaPlanos';
 import { PaginaLoginAdmin } from '@/pages/admin/PaginaLoginAdmin';
 import { PaginaPedidosAdmin } from '@/pages/admin/PaginaPedidosAdmin';
 import { PaginaCardapioAdmin } from '@/pages/admin/PaginaCardapioAdmin';
@@ -17,6 +18,9 @@ import { PaginaProducaoAdmin } from '@/pages/admin/PaginaProducaoAdmin';
 import { PaginaFinanceiroAdmin } from '@/pages/admin/PaginaFinanceiroAdmin';
 import { PaginaPerfilAdmin } from '@/pages/admin/PaginaPerfilAdmin';
 import { PaginaClientesAdmin } from '@/pages/admin/PaginaClientesAdmin';
+import { PaginaNegocioAdmin } from '@/pages/admin/PaginaNegocioAdmin';
+import { PaginaEquipeAdmin } from '@/pages/admin/PaginaEquipeAdmin';
+import { PaginaAceitarConvite } from '@/pages/admin/PaginaAceitarConvite';
 
 function App() {
   return (
@@ -31,9 +35,11 @@ function App() {
               <Route path="/pedido/:id" element={<PaginaAcompanhamento />} />
               <Route path="/login" element={<PaginaLoginCliente />} />
               <Route path="/meus-pedidos" element={<PaginaMeusPedidos />} />
+              <Route path="/planos" element={<PaginaPlanos />} />
 
               {/* Área admin */}
               <Route path="/admin/login" element={<PaginaLoginAdmin />} />
+              <Route path="/equipe/convite/:token" element={<PaginaAceitarConvite />} />
               <Route
                 path="/admin/pedidos"
                 element={
@@ -90,6 +96,26 @@ function App() {
                   <RotaProtegida>
                     <AdminLayout>
                       <PaginaClientesAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/negocio"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaNegocioAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/equipe"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaEquipeAdmin />
                     </AdminLayout>
                   </RotaProtegida>
                 }

@@ -36,9 +36,17 @@ const CORES_PAGAMENTO: Record<StatusPagamento, string> = {
   CANCELADO: 'bg-ink-soft/10 text-ink-soft',
 };
 
+const TILT_PEDIDO: Record<StatusPedido, string> = {
+  RECEBIDO: 'stamp-badge--tilt-b',
+  EM_PREPARACAO: 'stamp-badge--tilt-a',
+  PRONTO: 'stamp-badge--tilt-c',
+  SAIU_ENTREGA: 'stamp-badge--tilt-a',
+  ENTREGUE: 'stamp-badge--tilt-b',
+};
+
 export function StatusPedidoBadge({ status }: { status: StatusPedido }) {
   return (
-    <span className={`badge-pill inline-block px-2.5 py-1 text-xs rounded-full ${CORES_PEDIDO[status]}`}>
+    <span className={`stamp-badge ${TILT_PEDIDO[status]} px-2.5 py-1 text-xs ${CORES_PEDIDO[status]}`}>
       {LABELS_PEDIDO[status]}
     </span>
   );
@@ -47,7 +55,7 @@ export function StatusPedidoBadge({ status }: { status: StatusPedido }) {
 export function StatusUnidadeBadge({ status }: { status: StatusUnidade }) {
   return (
     <span
-      className={`badge-pill inline-block px-2 py-0.5 text-[11px] rounded-full ${
+      className={`stamp-badge px-2 py-0.5 text-[11px] ${
         status === 'PRONTA' ? 'bg-herb/10 text-herb-dark' : 'bg-ink-soft/10 text-ink-soft'
       }`}
     >
@@ -58,7 +66,7 @@ export function StatusUnidadeBadge({ status }: { status: StatusUnidade }) {
 
 export function StatusPagamentoBadge({ status }: { status: StatusPagamento }) {
   return (
-    <span className={`badge-pill inline-block px-2.5 py-1 text-xs rounded-full ${CORES_PAGAMENTO[status]}`}>
+    <span className={`stamp-badge stamp-badge--tilt-b px-2.5 py-1 text-xs ${CORES_PAGAMENTO[status]}`}>
       {LABELS_PAGAMENTO[status]}
     </span>
   );

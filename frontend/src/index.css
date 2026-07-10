@@ -55,6 +55,23 @@ textarea {
   text-transform: uppercase;
 }
 
+/* Selo de status em formato de "carimbo de cozinha" — assinatura visual do
+   app. Alterna a rotação via .stamp-badge--tilt-a/b/c para dar um ar
+   artesanal, não perfeitamente alinhado. */
+.stamp-badge {
+  border: none;
+  border-radius: 225px 15px 225px 15px / 15px 225px 15px 225px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.stamp-badge--tilt-a { transform: rotate(-2deg); }
+.stamp-badge--tilt-b { transform: rotate(2deg); }
+.stamp-badge--tilt-c { transform: rotate(-3deg); }
+
 .food-pattern {
   background-color: #F8E8B8;
   background-image: repeating-linear-gradient(

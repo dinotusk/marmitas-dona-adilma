@@ -111,6 +111,92 @@ router.get('/relatorios/sabores-mais-vendidos', requireAdmin, async (_req, res) 
   res.json(detalhado);
 });
 
+// ---------- ADMIN: receita por semana (para gráfico) ----------
+router.get('/receita-semanal', requireAdmin, async (req, res) => {
+  const semanas = Math.min(52, Math.max(1, Number(req.query.semanas) || 8));
+  const agora = new Date();
+  const inicioJanela = inicioDaSemana(agora);
+  inicioJanela.setDate(inicioJanela.getDate() - 7 * (semanas - 1));
+
+  const pedidos = await prisma.pedido.findMany({
+    where: { createdAt: { gte: inicioJanela }, statusPagamento: 'PAGO' },
+    select: { createdAt: true, valorTotal: true },
+  });
+
+  const semanasArr = Array.from({ length: semanas }, (_, i) => {
+    const semanaInicio = new Date(inicioJanela);
+    semanaInicio.setDate(semanaInicio.getDate() + 7 * i);
+    const semanaFim = new Date(semanaInicio);
+    semanaFim.setDate(semanaFim.getDate() + 7);
+    return { semanaInicio, semanaFim, total: 0, quantidade: 0 };
+  });
+
+  for (const pedido of pedidos) {
+    const bucket = semanasArr.find((s) => pedido.createdAt >= s.semanaInicio && pedido.createdAt < s.semanaFim);
+    if (!bucket) continue;
+    bucket.total += Number(pedido.valorTotal);
+    bucket.quantidade += 1;
+  }
+
+  res.json(
+    semanasArr.map((s) => ({
+      semanaInicio: s.semanaInicio.toISOString().slice(0, 10),
+      total: s.total,
+      quantidade: s.quantidade,
+    }))
+  );
+});
+
+// ---------- ADMIN: exportar pedidos em CSV ----------
+function escapeCsv(valor: string) {
+  if (/[",\n]/.test(valor)) return `"${valor.replace(/"/g, '""')}"`;
+  return valor;
+}
+
+router.get('/exportar', requireAdmin, async (req, res) => {
+  const { inicio, fim } = req.query as { inicio?: string; fim?: string };
+
+  const where = inicio && fim ? { createdAt: { gte: new Date(inicio), lte: new Date(fim) } } : {};
+
+  const pedidos = await prisma.pedido.findMany({
+    where,
+    include: { cliente: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const cabecalho = [
+    'Data',
+    'Cliente',
+    'Telefone',
+    'Status',
+    'Status Pagamento',
+    'Forma Pagamento',
+    'Tipo Entrega',
+    'Valor Total',
+  ];
+
+  const linhas = pedidos.map((p) =>
+    [
+      p.createdAt.toISOString(),
+      p.cliente.nome,
+      p.cliente.telefone,
+      p.status,
+      p.statusPagamento,
+      p.formaPagamento,
+      p.tipoEntrega,
+      Number(p.valorTotal).toFixed(2),
+    ]
+      .map((v) => escapeCsv(String(v)))
+      .join(',')
+  );
+
+  const csv = [cabecalho.join(','), ...linhas].join('\n');
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="pedidos-${Date.now()}.csv"`);
+  res.send('﻿' + csv);
+});
+
 // ---------- ADMIN: histórico de clientes (RN011) ----------
 router.get('/clientes', requireAdmin, async (_req, res) => {
   const clientes = await prisma.cliente.findMany({

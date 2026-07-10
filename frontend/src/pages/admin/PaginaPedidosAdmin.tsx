@@ -14,6 +14,14 @@ import type { Pedido, ItemPedido, StatusPedido, StatusPagamento } from '@/types/
 const STATUS_OPCOES: StatusPedido[] = ['RECEBIDO', 'EM_PREPARACAO', 'PRONTO', 'SAIU_ENTREGA', 'ENTREGUE'];
 const STATUS_PAGAMENTO_OPCOES: StatusPagamento[] = ['PENDENTE', 'PAGO', 'CANCELADO'];
 
+const COLUNA_ESTILO: Record<StatusPedido, { stamp: string; borda: string; tilt: string }> = {
+  RECEBIDO: { stamp: 'bg-paprika text-cream-card', borda: 'border-l-paprika', tilt: 'stamp-badge--tilt-a' },
+  EM_PREPARACAO: { stamp: 'bg-straw text-cocoa', borda: 'border-l-straw', tilt: 'stamp-badge--tilt-b' },
+  PRONTO: { stamp: 'bg-herb text-cream-card', borda: 'border-l-herb', tilt: 'stamp-badge--tilt-c' },
+  SAIU_ENTREGA: { stamp: 'bg-herb-dark text-cream-card', borda: 'border-l-herb-dark', tilt: 'stamp-badge--tilt-a' },
+  ENTREGUE: { stamp: 'bg-ink-soft text-cream-card', borda: 'border-l-ink-soft', tilt: 'stamp-badge--tilt-b' },
+};
+
 const FORMA_PAGAMENTO_LABEL: Record<string, string> = {
   PIX: 'Pix',
   CARTAO: 'Cartão',
@@ -32,10 +40,16 @@ function formatarMoeda(valor: number | string) {
   return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function proximoStatus(status: StatusPedido): StatusPedido | null {
+  const idx = STATUS_OPCOES.indexOf(status);
+  return idx >= 0 && idx < STATUS_OPCOES.length - 1 ? STATUS_OPCOES[idx + 1] : null;
+}
+
 export function PaginaPedidosAdmin() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [totalPedidos, setTotalPedidos] = useState(0);
   const [filtro, setFiltro] = useState<StatusPedido | 'TODOS'>('TODOS');
+  const [modo, setModo] = useState<'lista' | 'quadro'>('quadro');
   const [buscaInput, setBuscaInput] = useState('');
   const [busca, setBusca] = useState('');
   const [pagina, setPagina] = useState(1);
@@ -202,10 +216,76 @@ export function PaginaPedidosAdmin() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-2xl text-ink">Pedidos recentes</h2>
-            <span className="text-xs font-bold text-herb-dark">{totalPedidos} no filtro</span>
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1 rounded-lg border border-line bg-cream-card p-1">
+                <button
+                  type="button"
+                  onClick={() => setModo('quadro')}
+                  className={`rounded px-3 py-1 text-xs font-bold ${modo === 'quadro' ? 'bg-herb text-cream-card' : 'text-ink-soft'}`}
+                >
+                  Quadro
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModo('lista')}
+                  className={`rounded px-3 py-1 text-xs font-bold ${modo === 'lista' ? 'bg-herb text-cream-card' : 'text-ink-soft'}`}
+                >
+                  Lista
+                </button>
+              </div>
+              <span className="text-xs font-bold text-herb-dark">{totalPedidos} no filtro</span>
+            </div>
           </div>
 
-          {pedidos.map((pedido) => (
+          {modo === 'quadro' && !carregando && pedidos.length > 0 && (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {STATUS_OPCOES.map((status) => {
+                const pedidosDoStatus = pedidos.filter((p) => p.status === status);
+                const estilo = COLUNA_ESTILO[status];
+                return (
+                  <div key={status} className="w-72 shrink-0 rounded-xl bg-vanilla p-3">
+                    <div className="mb-3">
+                      <span className={`stamp-badge ${estilo.tilt} ${estilo.stamp} px-3 py-1.5 text-[11px]`}>
+                        {LABELS_PEDIDO[status]} · {pedidosDoStatus.length}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {pedidosDoStatus.map((pedido) => {
+                        const proximo = proximoStatus(pedido.status);
+                        return (
+                          <Card key={pedido.id} className={`border-l-4 p-3 ${estilo.borda}`}>
+                            <div className="flex items-center justify-between font-mono text-[11px] text-ink-soft">
+                              <span>#{pedido.id.slice(0, 8)}</span>
+                              <span>{new Date(pedido.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <p className="mt-1 truncate text-sm font-bold text-ink">{pedido.cliente.nome}</p>
+                            <p className="mt-2 font-mono text-sm font-bold text-herb-dark">{formatarMoeda(pedido.valorTotal)}</p>
+                            <div className="mt-2 flex items-center justify-between gap-2">
+                              <StatusPagamentoBadge status={pedido.statusPagamento} />
+                              {proximo && (
+                                <button
+                                  type="button"
+                                  onClick={() => atualizarStatus(pedido.id, proximo)}
+                                  className="rounded-lg bg-herb px-2.5 py-1 text-[11px] font-bold text-cream-card hover:opacity-90"
+                                >
+                                  {LABELS_PEDIDO[proximo]} →
+                                </button>
+                              )}
+                            </div>
+                          </Card>
+                        );
+                      })}
+                      {pedidosDoStatus.length === 0 && (
+                        <p className="py-4 text-center text-xs text-ink-soft">Vazio</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {modo === 'lista' && pedidos.map((pedido) => (
             <Card key={pedido.id} className="p-0">
               <div className="grid gap-3 p-3 lg:grid-cols-[1fr_auto] lg:p-4">
                 <div>

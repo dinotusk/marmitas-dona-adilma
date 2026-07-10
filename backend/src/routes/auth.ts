@@ -43,7 +43,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 
   const token = jwt.sign({ adminId: admin.id }, JWT_SECRET, { expiresIn: '8h' });
 
-  res.json({ token, admin: { id: admin.id, nome: admin.nome, email: admin.email } });
+  res.json({ token, admin: { id: admin.id, nome: admin.nome, email: admin.email, cargo: admin.cargo } });
 });
 
 // GET /api/auth/me - dados do admin autenticado
@@ -52,7 +52,7 @@ router.get('/me', requireAdmin, async (req: AuthRequest, res) => {
   if (!admin) {
     return res.status(404).json({ erro: 'Administradora não encontrada' });
   }
-  res.json({ id: admin.id, nome: admin.nome, email: admin.email });
+  res.json({ id: admin.id, nome: admin.nome, email: admin.email, cargo: admin.cargo });
 });
 
 // PATCH /api/auth/senha - trocar a própria senha

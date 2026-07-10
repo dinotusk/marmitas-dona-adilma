@@ -23,9 +23,9 @@ export function ClienteLayout({ children }: { children: ReactNode }) {
             <a href="/#como-funciona" className="hidden text-ink hover:text-herb-dark md:inline">
               Como funciona
             </a>
-            <a href="/#cardapio-semana" className="hidden text-ink hover:text-herb-dark md:inline">
+            <Link to="/planos" className="hidden text-ink hover:text-herb-dark md:inline">
               Planos
-            </a>
+            </Link>
             <Link to={cliente ? '/meus-pedidos' : '/login'} className="text-herb-dark hover:text-herb">
               {cliente ? cliente.nome.split(' ')[0] : 'Entrar'}
             </Link>

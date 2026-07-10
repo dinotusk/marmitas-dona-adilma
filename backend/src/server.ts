@@ -10,6 +10,11 @@ import pedidosRoutes from './routes/pedidos';
 import producaoRoutes from './routes/producao';
 import financeiroRoutes from './routes/financeiro';
 import clientesRoutes from './routes/clientes';
+import cuponsRoutes from './routes/cupons';
+import configuracaoRoutes from './routes/configuracao';
+import equipeRoutes from './routes/equipe';
+import assinaturasRoutes from './routes/assinaturas';
+import { iniciarAgendadorAssinaturas } from './services/assinaturaScheduler';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -30,6 +35,10 @@ app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/producao', producaoRoutes);
 app.use('/api/financeiro', financeiroRoutes);
 app.use('/api/clientes', clientesRoutes);
+app.use('/api/cupons', cuponsRoutes);
+app.use('/api/configuracao', configuracaoRoutes);
+app.use('/api/equipe', equipeRoutes);
+app.use('/api/assinaturas', assinaturasRoutes);
 
 // Serve o build do frontend (SPA) na mesma origem da API, evitando CORS
 // e configuração de URL separada em produção.
@@ -47,4 +56,5 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
+  iniciarAgendadorAssinaturas();
 });

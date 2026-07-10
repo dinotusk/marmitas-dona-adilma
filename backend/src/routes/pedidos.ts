@@ -4,6 +4,7 @@ import { prisma } from '../prismaClient';
 import { requireAdmin } from '../middleware/auth';
 import { StatusPedido, StatusUnidade, StatusPagamento } from '@prisma/client';
 import { notificarStatusPedido } from '../services/whatsappService';
+import { criarPedido, PedidoError } from '../services/pedidoService';
 
 const router = Router();
 
@@ -13,6 +14,8 @@ export const criarPedidoSchema = z.object({
   telefone: z.string().min(8),
   endereco: z.string().min(1),
   formaPagamento: z.enum(['PIX', 'CARTAO', 'DINHEIRO']),
+  tipoEntrega: z.enum(['ENTREGA', 'RETIRADA']).default('ENTREGA'),
+  cupomCodigo: z.string().optional(),
   observacoes: z.string().optional(),
   itens: z
     .array(
@@ -30,32 +33,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ erro: 'Dados inválidos', detalhes: parsed.error.flatten() });
   }
 
-  const { nome, telefone, endereco, formaPagamento, observacoes, itens } = parsed.data;
-
-  // Busca preços reais no banco para calcular o total (nunca confiar no valor vindo do cliente)
-  const itemIds = itens.map((i) => i.itemCardapioId);
-  const itensCardapio = await prisma.itemCardapio.findMany({
-    where: { id: { in: itemIds }, ativo: true },
-  });
-
-  if (itensCardapio.length !== itemIds.length) {
-    return res.status(400).json({ erro: 'Um ou mais itens do cardápio são inválidos ou estão inativos' });
-  }
-
-  // Verifica disponibilidade de estoque (itens sem controle de estoque nunca bloqueiam)
-  for (const pedidoItem of itens) {
-    const itemCardapio = itensCardapio.find((i) => i.id === pedidoItem.itemCardapioId)!;
-    if (itemCardapio.controlaEstoque && pedidoItem.quantidade > itemCardapio.qtdDisponivel) {
-      return res.status(400).json({
-        erro: `Quantidade indisponível para "${itemCardapio.sabor}". Disponível: ${itemCardapio.qtdDisponivel}`,
-      });
-    }
-  }
-
-  const valorTotal = itens.reduce((total, pedidoItem) => {
-    const itemCardapio = itensCardapio.find((i) => i.id === pedidoItem.itemCardapioId)!;
-    return total + Number(itemCardapio.preco) * pedidoItem.quantidade;
-  }, 0);
+  const { nome, telefone, endereco, formaPagamento, tipoEntrega, cupomCodigo, observacoes, itens } = parsed.data;
 
   // Upsert do cliente por telefone (RN011 - histórico de clientes)
   const cliente = await prisma.cliente.upsert({
@@ -64,44 +42,22 @@ router.post('/', async (req, res) => {
     create: { nome, telefone, endereco },
   });
 
-  const pedido = await prisma.$transaction(async (tx) => {
-    const novoPedido = await tx.pedido.create({
-      data: {
-        clienteId: cliente.id,
-        formaPagamento,
-        observacoes,
-        valorTotal,
-        itens: {
-          create: itens.map((i) => ({
-            itemCardapioId: i.itemCardapioId,
-            quantidade: i.quantidade,
-          })),
-        },
-      },
-      include: { itens: { include: { itemCardapio: true } }, cliente: true },
+  try {
+    const pedido = await criarPedido({
+      clienteId: cliente.id,
+      formaPagamento,
+      tipoEntrega,
+      itens,
+      cupomCodigo,
+      observacoes,
     });
-
-    // Abate o estoque disponível (itens sem controle de estoque não são abatidos)
-    for (const pedidoItem of itens) {
-      const itemCardapio = itensCardapio.find((i) => i.id === pedidoItem.itemCardapioId)!;
-      if (!itemCardapio.controlaEstoque) continue;
-      await tx.itemCardapio.update({
-        where: { id: pedidoItem.itemCardapioId },
-        data: { qtdDisponivel: { decrement: pedidoItem.quantidade } },
-      });
+    res.status(201).json(pedido);
+  } catch (e) {
+    if (e instanceof PedidoError) {
+      return res.status(400).json({ erro: e.message });
     }
-
-    return novoPedido;
-  });
-
-  notificarStatusPedido('RECEBIDO', {
-    nomeCliente: pedido.cliente.nome,
-    telefone: pedido.cliente.telefone,
-    numeroPedido: pedido.id.slice(0, 8),
-    valorTotal: Number(pedido.valorTotal),
-  }).catch((erro) => console.error('[WhatsApp] Erro inesperado:', erro));
-
-  res.status(201).json(pedido);
+    throw e;
+  }
 });
 
 // ---------- CLIENTE: acompanhar pedido (HU003) ----------

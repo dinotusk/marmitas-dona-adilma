@@ -12,6 +12,19 @@ function formatarMoeda(valor: number | string) {
   return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function tagsDisponiveis(cardapio: Cardapio) {
+  return Array.from(new Set(cardapio.itens.flatMap((i) => i.tags))).sort();
+}
+
+const TAG_CORES = ['bg-herb text-cream-card', 'bg-straw text-cocoa', 'bg-paprika text-cream-card'];
+const TAG_TILTS = ['stamp-badge--tilt-a', 'stamp-badge--tilt-b', 'stamp-badge--tilt-c'];
+
+function estiloTag(tag: string) {
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) hash = (hash + tag.charCodeAt(i)) % TAG_CORES.length;
+  return `${TAG_CORES[hash]} ${TAG_TILTS[hash]}`;
+}
+
 function ItemCard({ item, quantidade, onChange }: { item: ItemCardapio; quantidade: number; onChange: (qtd: number) => void }) {
   const semEstoque = item.controlaEstoque && item.qtdDisponivel <= 0;
   const limiteQtd = item.controlaEstoque ? item.qtdDisponivel : 99;
@@ -27,6 +40,15 @@ function ItemCard({ item, quantidade, onChange }: { item: ItemCardapio; quantida
       <div className="flex flex-1 flex-col p-4">
         <h2 className="font-display text-xl leading-tight text-ink">{item.sabor}</h2>
         {item.descricao && <p className="mt-2 line-clamp-2 text-sm text-ink-soft">{item.descricao}</p>}
+        {item.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {item.tags.map((tag) => (
+              <span key={tag} className={`stamp-badge px-2 py-0.5 text-[9.5px] ${estiloTag(tag)}`}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="mt-auto pt-4">
           <div className="mb-3">
@@ -74,6 +96,7 @@ export function PaginaCardapio() {
   const [cardapio, setCardapio] = useState<Cardapio | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [tagAtiva, setTagAtiva] = useState<string | null>(null);
   const { itens, quantidadeTotal, valorTotal, definirQuantidade } = useCarrinho();
   const navigate = useNavigate();
 
@@ -162,16 +185,46 @@ export function PaginaCardapio() {
         )}
 
         {cardapio && !carregando && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {cardapio.itens.map((item) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                quantidade={quantidadeNoCarrinho(item.id)}
-                onChange={(qtd) => definirQuantidade(item, qtd)}
-              />
-            ))}
-          </div>
+          <>
+            {tagsDisponiveis(cardapio).length > 0 && (
+              <div className="mb-5 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTagAtiva(null)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    tagAtiva === null ? 'bg-herb text-cream-card' : 'bg-cream-card text-ink-soft'
+                  }`}
+                >
+                  Todos
+                </button>
+                {tagsDisponiveis(cardapio).map((tag) => (
+                  <button
+                    type="button"
+                    key={tag}
+                    onClick={() => setTagAtiva(tag)}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      tagAtiva === tag ? 'bg-herb text-cream-card' : 'bg-cream-card text-ink-soft'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {cardapio.itens
+                .filter((item) => !tagAtiva || item.tags.includes(tagAtiva))
+                .map((item) => (
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    quantidade={quantidadeNoCarrinho(item.id)}
+                    onChange={(qtd) => definirQuantidade(item, qtd)}
+                  />
+                ))}
+            </div>
+          </>
         )}
       </section>
 

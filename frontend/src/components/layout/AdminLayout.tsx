@@ -9,7 +9,9 @@ const NAV_ITEMS = [
   { to: '/admin/producao', label: 'Produção' },
   { to: '/admin/financeiro', label: 'Financeiro' },
   { to: '/admin/clientes', label: 'Clientes' },
-  { to: '/admin/perfil', label: 'Config' },
+  { to: '/admin/negocio', label: 'Negócio' },
+  { to: '/admin/equipe', label: 'Equipe' },
+  { to: '/admin/perfil', label: 'Perfil' },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {

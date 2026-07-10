@@ -64,6 +64,10 @@ export const api = {
     request<T>(path, { method: 'POST', body, auth, authCliente }),
   patch: <T>(path: string, body?: unknown, auth = false, authCliente = false) =>
     request<T>(path, { method: 'PATCH', body, auth, authCliente }),
+  put: <T>(path: string, body?: unknown, auth = false, authCliente = false) =>
+    request<T>(path, { method: 'PUT', body, auth, authCliente }),
+  delete: <T>(path: string, auth = false, authCliente = false) =>
+    request<T>(path, { method: 'DELETE', auth, authCliente }),
 };
 
 export { ApiError, getAdminToken, getClienteToken };

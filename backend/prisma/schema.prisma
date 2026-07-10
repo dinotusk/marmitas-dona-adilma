@@ -11,12 +11,30 @@ datasource db {
 }
 
 // ---------- ADMIN (HU002 - acesso restrito, RN001) ----------
+enum CargoAdmin {
+  DONA
+  COZINHA
+  ATENDIMENTO
+}
+
 model Admin {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   nome      String
-  email     String   @unique
+  email     String     @unique
   senhaHash String
-  createdAt DateTime @default(now())
+  cargo     CargoAdmin @default(DONA)
+  createdAt DateTime   @default(now())
+}
+
+// Convite pendente pra alguém entrar na equipe (RN001 estendida)
+model AdminConvite {
+  id       String     @id @default(uuid())
+  email    String
+  cargo    CargoAdmin @default(ATENDIMENTO)
+  token    String     @unique
+  aceitoEm DateTime?
+  expiraEm DateTime
+  createdAt DateTime  @default(now())
 }
 
 // ---------- CLIENTE (HU001, HU004 - histórico) ----------
@@ -28,7 +46,8 @@ model Cliente {
   senhaHash String? // null = nunca criou conta, sempre pediu como convidado
   createdAt DateTime @default(now())
 
-  pedidos Pedido[]
+  pedidos     Pedido[]
+  assinaturas Assinatura[]
 }
 
 // ---------- CARDÁPIO (HU002) ----------
@@ -50,10 +69,73 @@ model ItemCardapio {
   preco           Decimal  @db.Decimal(10, 2)
   qtdDisponivel   Int
   controlaEstoque Boolean  @default(true)
+  tags            String[] @default([])
   ativo           Boolean  @default(true)
 
   cardapio    Cardapio     @relation(fields: [cardapioId], references: [id])
   itensPedido ItemPedido[]
+}
+
+// ---------- CUPOM DE DESCONTO ----------
+enum TipoDesconto {
+  PERCENTUAL
+  FIXO
+}
+
+model Cupom {
+  id          String       @id @default(uuid())
+  codigo      String       @unique
+  tipo        TipoDesconto
+  valor       Decimal      @db.Decimal(10, 2)
+  ativo       Boolean      @default(true)
+  validoAte   DateTime?
+  usosMaximos Int?
+  usosAtuais  Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  pedidos Pedido[]
+}
+
+// ---------- CONFIGURAÇÃO DO NEGÓCIO (linha única) ----------
+model ConfiguracaoNegocio {
+  id                  String   @id @default(uuid())
+  nomeNegocio         String   @default("Dona Adilma")
+  telefone            String   @default("")
+  endereco            String   @default("")
+  horarios            Json     @default("{}")
+  pagamentosAceitos   String[] @default(["PIX", "CARTAO", "DINHEIRO"])
+  notificarNovoPedido Boolean  @default(true)
+  resumoSemanalEmail  Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+}
+
+// ---------- ASSINATURA (planos recorrentes) ----------
+enum Periodicidade {
+  SEMANAL
+  QUINZENAL
+  MENSAL
+}
+
+enum StatusAssinatura {
+  ATIVA
+  PAUSADA
+  CANCELADA
+}
+
+model Assinatura {
+  id              String           @id @default(uuid())
+  clienteId       String
+  periodicidade   Periodicidade
+  status          StatusAssinatura @default(ATIVA)
+  itensPadrao     Json // [{ itemCardapioId, quantidade }]
+  formaPagamento  FormaPagamento
+  tipoEntrega     TipoEntrega      @default(ENTREGA)
+  proximoPedidoEm DateTime
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  cliente Cliente  @relation(fields: [clienteId], references: [id])
+  pedidos Pedido[]
 }
 
 // ---------- PEDIDO (HU001, HU002, HU003) ----------
@@ -77,19 +159,31 @@ enum StatusPagamento {
   CANCELADO
 }
 
+enum TipoEntrega {
+  ENTREGA
+  RETIRADA
+}
+
 model Pedido {
   id              String          @id @default(uuid())
   clienteId       String
   status          StatusPedido    @default(RECEBIDO)
   formaPagamento  FormaPagamento
   statusPagamento StatusPagamento @default(PENDENTE)
+  tipoEntrega     TipoEntrega     @default(ENTREGA)
+  taxaEntrega     Decimal         @default(0) @db.Decimal(10, 2)
+  cupomId         String?
+  valorDesconto   Decimal         @default(0) @db.Decimal(10, 2)
   valorTotal      Decimal         @db.Decimal(10, 2)
   observacoes     String?
+  assinaturaId    String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  cliente Cliente      @relation(fields: [clienteId], references: [id])
-  itens   ItemPedido[]
+  cliente    Cliente      @relation(fields: [clienteId], references: [id])
+  itens      ItemPedido[]
+  cupom      Cupom?       @relation(fields: [cupomId], references: [id])
+  assinatura Assinatura?  @relation(fields: [assinaturaId], references: [id])
 }
 
 // ---------- ITEM DO PEDIDO (controle unitário - RN005) ----------

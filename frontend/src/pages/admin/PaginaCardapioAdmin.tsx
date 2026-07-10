@@ -12,10 +12,18 @@ interface NovoItem {
   preco: string;
   qtdDisponivel: string;
   controlaEstoque: boolean;
+  tags: string;
 }
 
 function novoItemVazio(): NovoItem {
-  return { sabor: '', descricao: '', preco: '', qtdDisponivel: '', controlaEstoque: true };
+  return { sabor: '', descricao: '', preco: '', qtdDisponivel: '', controlaEstoque: true, tags: '' };
+}
+
+function parseTags(tags: string): string[] {
+  return tags
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
 }
 
 function formatarData(iso: string) {
@@ -34,6 +42,7 @@ function ItemCardapioRow({
   const [qtdDisponivel, setQtdDisponivel] = useState(String(item.qtdDisponivel));
   const [controlaEstoque, setControlaEstoque] = useState(item.controlaEstoque);
   const [ativo, setAtivo] = useState(item.ativo);
+  const [tags, setTags] = useState(item.tags.join(', '));
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -49,6 +58,7 @@ function ItemCardapioRow({
           qtdDisponivel: Number(qtdDisponivel),
           controlaEstoque,
           ativo,
+          tags: parseTags(tags),
         },
         true
       );
@@ -68,6 +78,13 @@ function ItemCardapioRow({
         onChange={(e) => setDescricao(e.target.value)}
         placeholder="Descrição"
         className="mt-1 w-full px-2 py-1 text-sm rounded border border-line bg-cream-card text-ink-soft
+          focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+      />
+      <input
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
+        placeholder="Tags (separadas por vírgula)"
+        className="mt-2 w-full px-2 py-1 text-sm rounded border border-line bg-cream-card text-ink-soft
           focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
       />
       <div className="flex flex-wrap items-center gap-3 mt-2">
@@ -175,6 +192,7 @@ export function PaginaCardapioAdmin() {
             preco: Number(i.preco),
             qtdDisponivel: Number(i.qtdDisponivel),
             controlaEstoque: i.controlaEstoque,
+            tags: parseTags(i.tags),
           })),
         },
         true
@@ -205,6 +223,7 @@ export function PaginaCardapioAdmin() {
           preco: Number(novoSabor.preco),
           qtdDisponivel: Number(novoSabor.qtdDisponivel),
           controlaEstoque: novoSabor.controlaEstoque,
+          tags: parseTags(novoSabor.tags),
         },
         true
       );
@@ -321,6 +340,13 @@ export function PaginaCardapioAdmin() {
                       className="flex-1 min-w-[140px] px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
                         focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
                     />
+                    <input
+                      value={novoSabor.tags}
+                      onChange={(e) => setNovoSabor((atual) => ({ ...atual, tags: e.target.value }))}
+                      placeholder="Tags (separadas por vírgula)"
+                      className="flex-1 min-w-[140px] px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
+                        focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                    />
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <input
@@ -402,6 +428,13 @@ export function PaginaCardapioAdmin() {
                         value={item.descricao}
                         onChange={(e) => atualizarCampoNovoItem(index, 'descricao', e.target.value)}
                         placeholder="Descrição (opcional)"
+                        className="flex-1 min-w-[140px] px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
+                          focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+                      />
+                      <input
+                        value={item.tags}
+                        onChange={(e) => atualizarCampoNovoItem(index, 'tags', e.target.value)}
+                        placeholder="Tags (separadas por vírgula)"
                         className="flex-1 min-w-[140px] px-3 py-2 rounded-md border border-line bg-cream-card text-ink text-sm
                           focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
                       />

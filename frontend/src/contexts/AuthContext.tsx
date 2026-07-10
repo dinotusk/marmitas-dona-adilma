@@ -5,11 +5,13 @@ interface AdminInfo {
   id: string;
   nome: string;
   email: string;
+  cargo?: string;
 }
 
 interface AuthContextValue {
   admin: AdminInfo | null;
   login: (email: string, senha: string) => Promise<void>;
+  definirSessao: (token: string, admin: AdminInfo) => void;
   logout: () => void;
   carregando: boolean;
 }
@@ -35,6 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const definirSessao = useCallback((token: string, adminInfo: AdminInfo) => {
+    localStorage.setItem('admin_token', token);
+    localStorage.setItem('admin_info', JSON.stringify(adminInfo));
+    setAdmin(adminInfo);
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_info');
@@ -42,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, carregando }}>
+    <AuthContext.Provider value={{ admin, login, definirSessao, logout, carregando }}>
       {children}
     </AuthContext.Provider>
   );
