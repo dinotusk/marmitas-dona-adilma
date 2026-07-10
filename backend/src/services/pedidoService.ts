@@ -97,12 +97,15 @@ export async function criarPedido(params: CriarPedidoParams) {
     return novoPedido;
   });
 
-  notificarStatusPedido('RECEBIDO', {
-    nomeCliente: pedido.cliente.nome,
-    telefone: pedido.cliente.telefone,
-    numeroPedido: pedido.id.slice(0, 8),
-    valorTotal: Number(pedido.valorTotal),
-  }).catch((erro) => console.error('[WhatsApp] Erro inesperado:', erro));
+  const config = await prisma.configuracaoNegocio.findFirst();
+  if (config?.notificarNovoPedido ?? true) {
+    notificarStatusPedido('RECEBIDO', {
+      nomeCliente: pedido.cliente.nome,
+      telefone: pedido.cliente.telefone,
+      numeroPedido: pedido.id.slice(0, 8),
+      valorTotal: Number(pedido.valorTotal),
+    }).catch((erro) => console.error('[WhatsApp] Erro inesperado:', erro));
+  }
 
   return pedido;
 }
