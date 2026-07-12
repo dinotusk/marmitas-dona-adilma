@@ -238,18 +238,18 @@ export function PaginaPedidosAdmin() {
           </div>
 
           {modo === 'quadro' && !carregando && pedidos.length > 0 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {STATUS_OPCOES.map((status) => {
                 const pedidosDoStatus = pedidos.filter((p) => p.status === status);
                 const estilo = COLUNA_ESTILO[status];
                 return (
-                  <div key={status} className="w-72 shrink-0 rounded-xl bg-vanilla p-3">
-                    <div className="mb-3">
+                  <div key={status} className="flex min-w-0 flex-col rounded-xl bg-vanilla p-3">
+                    <div className="mb-3 shrink-0">
                       <span className={`stamp-badge ${estilo.tilt} ${estilo.stamp} px-3 py-1.5 text-[11px]`}>
                         {LABELS_PEDIDO[status]} · {pedidosDoStatus.length}
                       </span>
                     </div>
-                    <div className="space-y-2">
+                    <div className="max-h-[65vh] space-y-2 overflow-y-auto pr-1">
                       {pedidosDoStatus.map((pedido) => {
                         const proximo = proximoStatus(pedido.status);
                         return (
