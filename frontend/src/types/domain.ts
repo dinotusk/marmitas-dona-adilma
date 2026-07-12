@@ -56,6 +56,7 @@ export interface Assinatura {
   tipoEntrega: TipoEntrega;
   proximoPedidoEm: string;
   createdAt: string;
+  cliente?: Cliente;
 }
 
 export interface ConfiguracaoNegocio {

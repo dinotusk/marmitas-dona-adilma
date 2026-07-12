@@ -88,6 +88,7 @@ router.post('/:cardapioId/itens', requireAdmin, async (req, res) => {
 
 // ---------- ADMIN: ativar/desativar item do cardápio ----------
 const patchItemSchema = z.object({
+  sabor: z.string().min(1).optional(),
   ativo: z.boolean().optional(),
   preco: z.number().positive().optional(),
   qtdDisponivel: z.number().int().nonnegative().optional(),

@@ -204,6 +204,7 @@ router.get('/clientes', requireAdmin, async (_req, res) => {
   });
 
   const historico = clientes.map((c) => ({
+    id: c.id,
     nome: c.nome,
     telefone: c.telefone,
     temConta: c.senhaHash !== null,

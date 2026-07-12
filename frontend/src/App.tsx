@@ -19,6 +19,7 @@ import { PaginaFinanceiroAdmin } from '@/pages/admin/PaginaFinanceiroAdmin';
 import { PaginaPerfilAdmin } from '@/pages/admin/PaginaPerfilAdmin';
 import { PaginaClientesAdmin } from '@/pages/admin/PaginaClientesAdmin';
 import { PaginaNegocioAdmin } from '@/pages/admin/PaginaNegocioAdmin';
+import { PaginaAssinaturasAdmin } from '@/pages/admin/PaginaAssinaturasAdmin';
 import { PaginaEquipeAdmin } from '@/pages/admin/PaginaEquipeAdmin';
 import { PaginaAceitarConvite } from '@/pages/admin/PaginaAceitarConvite';
 
@@ -96,6 +97,16 @@ function App() {
                   <RotaProtegida>
                     <AdminLayout>
                       <PaginaClientesAdmin />
+                    </AdminLayout>
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/admin/assinaturas"
+                element={
+                  <RotaProtegida>
+                    <AdminLayout>
+                      <PaginaAssinaturasAdmin />
                     </AdminLayout>
                   </RotaProtegida>
                 }

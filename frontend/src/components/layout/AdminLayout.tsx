@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/admin/producao', label: 'Produção' },
   { to: '/admin/financeiro', label: 'Financeiro' },
   { to: '/admin/clientes', label: 'Clientes' },
+  { to: '/admin/assinaturas', label: 'Planos' },
   { to: '/admin/negocio', label: 'Negócio' },
   { to: '/admin/equipe', label: 'Equipe' },
   { to: '/admin/perfil', label: 'Perfil' },
@@ -19,7 +20,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-parchment text-ink lg:flex">
-      <aside className="hidden w-60 shrink-0 flex-col bg-cocoa text-vanilla lg:flex">
+      <aside className="hidden w-60 shrink-0 flex-col bg-cocoa text-vanilla lg:sticky lg:top-0 lg:flex lg:h-screen lg:overflow-y-auto">
         <div className="border-b border-vanilla/10 px-6 py-6">
           <span className="block font-display text-2xl">Marmitas dona Adilma</span>
           <span className="mt-1 block text-xs text-vanilla/55">Painel administrativo</span>

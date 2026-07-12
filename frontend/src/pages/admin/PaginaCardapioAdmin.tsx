@@ -37,6 +37,7 @@ function ItemCardapioRow({
   item: ItemCardapio;
   onSalvo: (atualizado: ItemCardapio) => void;
 }) {
+  const [sabor, setSabor] = useState(item.sabor);
   const [descricao, setDescricao] = useState(item.descricao ?? '');
   const [preco, setPreco] = useState(item.preco);
   const [qtdDisponivel, setQtdDisponivel] = useState(String(item.qtdDisponivel));
@@ -53,6 +54,7 @@ function ItemCardapioRow({
       const atualizado = await api.patch<ItemCardapio>(
         `/cardapio/itens/${item.id}`,
         {
+          sabor: sabor.trim(),
           descricao: descricao.trim() || undefined,
           preco: Number(preco),
           qtdDisponivel: Number(qtdDisponivel),
@@ -72,7 +74,13 @@ function ItemCardapioRow({
 
   return (
     <div className="py-3 border-b border-line last:border-0">
-      <p className="font-medium text-ink">{item.sabor}</p>
+      <input
+        value={sabor}
+        onChange={(e) => setSabor(e.target.value)}
+        placeholder="Sabor"
+        className="w-full px-2 py-1 text-sm font-medium rounded border border-line bg-cream-card text-ink
+          focus:outline-none focus:ring-2 focus:ring-herb/40 focus:border-herb"
+      />
       <input
         value={descricao}
         onChange={(e) => setDescricao(e.target.value)}

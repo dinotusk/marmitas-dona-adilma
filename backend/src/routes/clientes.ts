@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '../prismaClient';
-import { JWT_SECRET, requireCliente, type ClienteAuthRequest } from '../middleware/auth';
+import { JWT_SECRET, requireAdmin, requireCliente, type ClienteAuthRequest } from '../middleware/auth';
 
 const router = Router();
 
@@ -101,6 +101,48 @@ router.get('/meus-pedidos', requireCliente, async (req: ClienteAuthRequest, res)
     orderBy: { createdAt: 'desc' },
   });
   res.json(pedidos);
+});
+
+// ---------- ADMIN: editar dados de um cliente ----------
+const atualizarClienteSchema = z.object({
+  nome: z.string().min(1).optional(),
+  telefone: z.string().min(8).optional(),
+  endereco: z.string().min(1).optional(),
+});
+
+router.patch('/:id', requireAdmin, async (req, res) => {
+  const parsed = atualizarClienteSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ erro: 'Dados inválidos', detalhes: parsed.error.flatten() });
+  }
+
+  try {
+    const cliente = await prisma.cliente.update({ where: { id: req.params.id }, data: parsed.data });
+    res.json(respostaCliente(cliente));
+  } catch {
+    res.status(404).json({ erro: 'Cliente não encontrado' });
+  }
+});
+
+// ---------- ADMIN: excluir cliente (só sem pedidos ou planos vinculados) ----------
+router.delete('/:id', requireAdmin, async (req, res) => {
+  const [pedidos, assinaturas] = await Promise.all([
+    prisma.pedido.count({ where: { clienteId: req.params.id } }),
+    prisma.assinatura.count({ where: { clienteId: req.params.id } }),
+  ]);
+
+  if (pedidos > 0 || assinaturas > 0) {
+    return res.status(409).json({
+      erro: 'Não é possível excluir: esse cliente tem pedidos ou planos no histórico.',
+    });
+  }
+
+  try {
+    await prisma.cliente.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  } catch {
+    res.status(404).json({ erro: 'Cliente não encontrado' });
+  }
 });
 
 export default router;

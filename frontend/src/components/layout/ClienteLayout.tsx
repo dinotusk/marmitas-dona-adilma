@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useClienteAuth } from '@/contexts/ClienteAuthContext';
 
+const ROTAS_CONTA = ['/meus-pedidos', '/planos'];
+
 export function ClienteLayout({ children }: { children: ReactNode }) {
-  const { cliente } = useClienteAuth();
+  const { cliente, logout } = useClienteAuth();
+  const location = useLocation();
+  const emAreaDeConta = Boolean(cliente) && ROTAS_CONTA.includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-parchment text-ink">
@@ -16,23 +20,47 @@ export function ClienteLayout({ children }: { children: ReactNode }) {
             <span className="font-display text-lg font-semibold leading-none text-ink">Marmitas dona Adilma</span>
           </Link>
 
-          <nav className="flex items-center gap-5 text-xs font-semibold">
-            <Link to="/" className="hidden text-ink hover:text-herb-dark md:inline">
-              Cardápio
-            </Link>
-            <a href="/#como-funciona" className="hidden text-ink hover:text-herb-dark md:inline">
-              Como funciona
-            </a>
-            <Link to="/planos" className="hidden text-ink hover:text-herb-dark md:inline">
-              Planos
-            </Link>
-            <Link to={cliente ? '/meus-pedidos' : '/login'} className="text-herb-dark hover:text-herb">
-              {cliente ? cliente.nome.split(' ')[0] : 'Entrar'}
-            </Link>
-            <a href="/#cardapio-semana" className="rounded-lg bg-herb px-4 py-2 text-cream-card hover:bg-herb-dark">
-              Pedir agora
-            </a>
-          </nav>
+          {emAreaDeConta ? (
+            <nav className="flex items-center gap-5 text-xs font-semibold">
+              <span className="hidden text-ink-soft md:inline">Olá, {cliente!.nome.split(' ')[0]}</span>
+              <Link to="/" className="text-ink hover:text-herb-dark">
+                Cardápio
+              </Link>
+              <Link
+                to="/meus-pedidos"
+                className={location.pathname === '/meus-pedidos' ? 'text-herb-dark' : 'text-ink hover:text-herb-dark'}
+              >
+                Meus pedidos
+              </Link>
+              <Link
+                to="/planos"
+                className={location.pathname === '/planos' ? 'text-herb-dark' : 'text-ink hover:text-herb-dark'}
+              >
+                Planos
+              </Link>
+              <button type="button" onClick={logout} className="rounded-lg border border-line px-3 py-1.5 text-ink-soft hover:bg-parchment">
+                Sair
+              </button>
+            </nav>
+          ) : (
+            <nav className="flex items-center gap-5 text-xs font-semibold">
+              <Link to="/" className="hidden text-ink hover:text-herb-dark md:inline">
+                Cardápio
+              </Link>
+              <a href="/#como-funciona" className="hidden text-ink hover:text-herb-dark md:inline">
+                Como funciona
+              </a>
+              <Link to="/planos" className="hidden text-ink hover:text-herb-dark md:inline">
+                Planos
+              </Link>
+              <Link to={cliente ? '/meus-pedidos' : '/login'} className="text-herb-dark hover:text-herb">
+                {cliente ? cliente.nome.split(' ')[0] : 'Entrar'}
+              </Link>
+              <a href="/#cardapio-semana" className="rounded-lg bg-herb px-4 py-2 text-cream-card hover:bg-herb-dark">
+                Pedir agora
+              </a>
+            </nav>
+          )}
         </div>
       </header>
 
