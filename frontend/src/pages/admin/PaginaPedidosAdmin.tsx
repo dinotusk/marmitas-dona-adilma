@@ -96,8 +96,7 @@ export function PaginaPedidosAdmin() {
     const marmitas = pedidos.reduce((total, pedido) => total + pedido.itens.reduce((sub, item) => sub + item.quantidade, 0), 0);
     const receita = pedidos.reduce((total, pedido) => total + Number(pedido.valorTotal), 0);
     const pendentes = pedidos.filter((pedido) => pedido.status !== 'ENTREGUE').length;
-    const ticketMedio = pedidos.length ? receita / pedidos.length : 0;
-    return { marmitas, receita, pendentes, ticketMedio };
+    return { marmitas, receita, pendentes };
   }, [pedidos]);
 
   async function atualizarStatus(pedidoId: string, status: StatusPedido) {
@@ -212,7 +211,7 @@ export function PaginaPedidosAdmin() {
         </Card>
       )}
 
-      <section className="grid gap-5 xl:grid-cols-[1fr_320px]">
+      <section>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-2xl text-ink">Pedidos recentes</h2>
@@ -243,7 +242,7 @@ export function PaginaPedidosAdmin() {
                 const pedidosDoStatus = pedidos.filter((p) => p.status === status);
                 const estilo = COLUNA_ESTILO[status];
                 return (
-                  <div key={status} className="flex min-w-0 flex-col rounded-xl bg-vanilla p-3">
+                  <div key={status} className="flex min-w-0 flex-col self-start rounded-xl bg-vanilla p-3">
                     <div className="mb-3 shrink-0">
                       <span className={`stamp-badge ${estilo.tilt} ${estilo.stamp} px-3 py-1.5 text-[11px]`}>
                         {LABELS_PEDIDO[status]} · {pedidosDoStatus.length}
@@ -348,12 +347,6 @@ export function PaginaPedidosAdmin() {
             </Card>
           ))}
         </div>
-
-        <aside className="rounded-xl bg-herb p-5 text-cream-card xl:sticky xl:top-8 xl:self-start">
-          <p className="text-xs font-bold uppercase tracking-wide text-cream-card/70">Ticket médio</p>
-          <p className="mt-2 font-display text-4xl">{formatarMoeda(resumo.ticketMedio)}</p>
-          <p className="mt-4 text-sm text-cream-card/75">Resumo calculado com os pedidos carregados nesta página.</p>
-        </aside>
       </section>
 
       {!carregando && totalPaginas > 1 && (
