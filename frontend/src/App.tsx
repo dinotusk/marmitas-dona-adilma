@@ -8,10 +8,9 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { PaginaCardapio } from '@/pages/cliente/PaginaCardapio';
 import { PaginaCheckout } from '@/pages/cliente/PaginaCheckout';
 import { PaginaAcompanhamento } from '@/pages/cliente/PaginaAcompanhamento';
-import { PaginaLoginCliente } from '@/pages/cliente/PaginaLoginCliente';
+import { PaginaLogin } from '@/pages/PaginaLogin';
 import { PaginaMeusPedidos } from '@/pages/cliente/PaginaMeusPedidos';
 import { PaginaPlanos } from '@/pages/cliente/PaginaPlanos';
-import { PaginaLoginAdmin } from '@/pages/admin/PaginaLoginAdmin';
 import { PaginaPedidosAdmin } from '@/pages/admin/PaginaPedidosAdmin';
 import { PaginaCardapioAdmin } from '@/pages/admin/PaginaCardapioAdmin';
 import { PaginaProducaoAdmin } from '@/pages/admin/PaginaProducaoAdmin';
@@ -34,12 +33,12 @@ function App() {
               <Route path="/" element={<PaginaCardapio />} />
               <Route path="/checkout" element={<PaginaCheckout />} />
               <Route path="/pedido/:id" element={<PaginaAcompanhamento />} />
-              <Route path="/login" element={<PaginaLoginCliente />} />
+              <Route path="/login" element={<PaginaLogin />} />
               <Route path="/meus-pedidos" element={<PaginaMeusPedidos />} />
               <Route path="/planos" element={<PaginaPlanos />} />
 
               {/* Área admin */}
-              <Route path="/admin/login" element={<PaginaLoginAdmin />} />
+              <Route path="/admin/login" element={<Navigate to="/login" replace />} />
               <Route path="/equipe/convite/:token" element={<PaginaAceitarConvite />} />
               <Route
                 path="/admin/pedidos"

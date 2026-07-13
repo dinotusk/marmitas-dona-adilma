@@ -6,7 +6,7 @@ export function RotaProtegida({ children }: { children: ReactNode }) {
   const { admin } = useAuth();
 
   if (!admin) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
